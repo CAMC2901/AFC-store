@@ -1,0 +1,21 @@
+{
+  "name": "afc-furniture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AFC — premium furniture e-commerce (Next.js + Express monorepo)",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}
