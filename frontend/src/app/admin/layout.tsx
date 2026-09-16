@@ -50,14 +50,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <p className="text-xs uppercase tracking-widest text-gold">Consola de administración</p>
             <h1 className="font-display text-2xl">Panel de administración de AFC</h1>
           </div>
-          <Link href="/" className="text-sm text-ivory/60 hover:text-gold">
-            Ver tienda →
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-gold hover:bg-gold hover:text-ink transition-colors"
+            >
+              ← Regresar a la Tienda
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className="container-afc grid gap-8 py-10 lg:grid-cols-[220px_1fr]">
+      <div className="container-afc grid gap-8 py-10 lg:grid-cols-[240px_1fr]">
         <aside className="h-fit rounded-2xl border border-line bg-surface p-4 lg:sticky lg:top-24">
+          <div className="mb-4 pb-3 border-b border-line">
+            <Link
+              href="/"
+              className="flex items-center gap-2 rounded-xl bg-ink px-3.5 py-2.5 text-xs font-bold text-ivory hover:bg-gold hover:text-ink transition-colors"
+            >
+              ← Volver a la Tienda
+            </Link>
+          </div>
           <nav className="space-y-1">
             {links.map((link) => (
               <Link
@@ -65,7 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href={link.href}
                 className={cn(
                   'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors',
-                  pathname === link.href ? 'bg-ink text-ivory' : 'text-ink/70 hover:bg-mist'
+                  pathname === link.href ? 'bg-gold/20 text-gold-dark font-bold' : 'text-ink/70 hover:bg-mist'
                 )}
               >
                 <link.icon size={18} />

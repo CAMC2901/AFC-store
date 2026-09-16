@@ -8,9 +8,18 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/app/account/components';
 import { IconHeart } from '@/components/ui/Icons';
+import { useI18n } from '@/i18n';
+import { localizeProduct } from '@/i18n/localize';
 
 export default function WishlistPage() {
   const { products, hydrate, isLoading } = useWishlistStore();
+  const { locale } = useI18n();
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
+
+  const localized = products.map((p) => localizeProduct(p, locale));
 
   useEffect(() => {
     void hydrate();
@@ -33,7 +42,7 @@ export default function WishlistPage() {
           action={<Button href="/products">Descubrir piezas</Button>}
         />
       ) : (
-        <ProductGrid products={products} />
+        <ProductGrid products={localized} />
       )}
     </div>
   );

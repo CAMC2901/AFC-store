@@ -38,6 +38,16 @@ export const ProductsApi = {
     const { data } = await apiClient.get<{ data: { min: number; max: number } }>('/products/price-range');
     return data.data;
   },
+
+  async rateProduct(id: string, rating: number): Promise<Product> {
+    const { data } = await apiClient.post<{ data: { product: Product } }>(`/products/${id}/rate`, { rating });
+    return data.data.product;
+  },
+
+  async config(): Promise<{ categories: Category[]; priceRange: { min: number; max: number }; storeInfo?: { phone: string; email: string; address: string } }> {
+    const { data } = await apiClient.get<{ data: { categories: Category[]; priceRange: { min: number; max: number }; storeInfo?: { phone: string; email: string; address: string } } }>('/config');
+    return data.data;
+  },
 };
 
 export const MiscApi = {

@@ -1,4 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
+import 'express-async-errors';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -11,9 +12,11 @@ import userRoutes from './routes/user.routes';
 import accountRoutes from './routes/account.routes';
 import miscRoutes from './routes/misc.routes';
 import adminRoutes from './routes/admin.routes';
+import assistantRoutes from './routes/assistant.routes';
 import { errorHandler, ApiError } from './utils/error';
 import { generalLimiter } from './middleware/rateLimiter';
 import { sanitize } from './middleware/sanitize';
+import { verifyCsrf } from './middleware/csrf';
 
 export const createApp = (): Express => {
   const app = express();
@@ -29,12 +32,13 @@ export const createApp = (): Express => {
   // CORS (credentials allowed for HTTP-only cookies)
   app.use(cors(corsOptions));
 
-  // Body parsing
-  app.use(express.json({ limit: '256kb' }));
-  app.use(express.urlencoded({ extended: true, limit: '256kb' }));
+  // Body parsing (50mb to allow base64 image uploads for products and categories)
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
   app.use(cookieParser());
 
-  // Global rate limiting + input sanitization
+  // CSRF protection + Global rate limiting + input sanitization
+  app.use(verifyCsrf);
   app.use(generalLimiter);
   app.use(sanitize);
 
@@ -52,6 +56,7 @@ export const createApp = (): Express => {
   app.use(`${API_PREFIX}/cart`, cartRoutes);
   app.use(`${API_PREFIX}/user`, userRoutes);
   app.use(`${API_PREFIX}/account`, accountRoutes);
+  app.use(`${API_PREFIX}/assistant`, assistantRoutes);
   app.use(`${API_PREFIX}`, miscRoutes);
   app.use(`${API_PREFIX}/admin`, adminRoutes);
 

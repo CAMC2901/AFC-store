@@ -18,7 +18,12 @@ export const clamp = (value: number, min: number, max: number): number =>
 /** Sanitize a free-text input: strip control chars and trim. */
 export const sanitizeText = (value: unknown): string =>
   String(value ?? '')
-    .replace(/[\u0000-\u001f\u007f]/g, '')
+    .split('')
+    .filter((ch) => {
+      const code = ch.charCodeAt(0);
+      return code >= 32 && code !== 127;
+    })
+    .join('')
     .trim();
 
 export const toNumber = (value: unknown, fallback: number): number => {

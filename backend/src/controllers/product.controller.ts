@@ -49,6 +49,12 @@ export const ProductController = {
     const categories = await CategoryService.list();
     res.json(success(categories));
   },
+
+  rate: async (req: Request, res: Response) => {
+    const { rating } = req.body as { rating: number };
+    const product = await ProductService.addRating(req.params.id, rating);
+    res.json(success({ product }, 'Calificación registrada con éxito.'));
+  },
 };
 
 export const CategoryController = {

@@ -3,7 +3,7 @@ export const SITE = {
   tagline: 'Vida Artesanal, Elevada.',
   description:
     'AFC cura mobiliario premium para el hogar moderno: materiales refinados, siluetas atemporales y entrega de primera clase.',
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001',
 } as const;
 
 export const API = {
@@ -11,12 +11,14 @@ export const API = {
 } as const;
 
 export const WHATSAPP = {
-  number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '15551234567',
+  number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '573001234567',
   message: (productName?: string) =>
     `Hola AFC, me interesa${productName ? ` el ${productName}` : ' su mobiliario'}. ¿Me pueden compartir más detalles?`,
 } as const;
 
-export const FREE_SHIPPING_THRESHOLD = 1499;
+export const FREE_SHIPPING_THRESHOLD = 1500000;
+export const STANDARD_SHIPPING_FEE = 25000;
+export const EXPRESS_SHIPPING_FEE = 40000;
 export const TAX_RATE = 0.08;
 
 export const SORT_OPTIONS: Array<{ value: string; label: string }> = [

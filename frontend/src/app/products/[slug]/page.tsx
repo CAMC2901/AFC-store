@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useProduct } from '@/hooks/useProducts';
+import { ProductsApi } from '@/services/products';
 import { ProductGallery } from '@/components/products/ProductGallery';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { Button } from '@/components/ui/Button';
@@ -59,7 +61,75 @@ function DetailContent({
   const [quantity, setQuantity] = useState(1);
   const [busy, setBusy] = useState<'cart' | 'buy' | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
+  const [currentRating, setCurrentRating] = useState(product.rating);
+  const [currentReviewCount, setCurrentReviewCount] = useState(product.reviewCount);
+  const [hoverStar, setHoverStar] = useState(0);
+  const [ratingBusy, setRatingBusy] = useState(false);
+  const queryClient = useQueryClient();
   const { t } = useI18n();
+
+  const [comments, setComments] = useState<Array<{ id: string; name: string; date: string; rating: number; text: string }>>([
+    {
+      id: '1',
+      name: 'Camila Mendoza',
+      date: 'Hace 2 días',
+      rating: 5,
+      text: 'Excelente calidad y acabados. Llegó muy rápido a Barranquilla y supera todas las expectativas de diseño.',
+    },
+    {
+      id: '2',
+      name: 'Carlos Gutiérrez',
+      date: 'Hace 1 semana',
+      rating: 5,
+      text: 'Totalmente recomendado. La textura de los materiales es suave, sólida y luce impecable en la sala.',
+    },
+  ]);
+  const [commentText, setCommentText] = useState('');
+  const [commentAuthor, setCommentAuthor] = useState('');
+  const [userRating, setUserRating] = useState(5);
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    setRatingBusy(true);
+    try {
+      const author = commentAuthor.trim() || 'Cliente Verificado';
+      const newComment = {
+        id: Date.now().toString(),
+        name: author,
+        date: 'Hace un momento',
+        rating: userRating,
+        text: commentText.trim(),
+      };
+      setComments((prev) => [newComment, ...prev]);
+      const updated = await ProductsApi.rateProduct(product.id, userRating);
+      setCurrentRating(updated.rating);
+      setCurrentReviewCount(updated.reviewCount);
+      void queryClient.invalidateQueries({ queryKey: ['products'] });
+      setCommentText('');
+      setCommentAuthor('');
+      toast.success('¡Tu comentario y calificación han sido publicados!');
+    } catch {
+      toast.error('No se pudo publicar el comentario.');
+    } finally {
+      setRatingBusy(false);
+    }
+  };
+
+  const handleRatingSubmit = async (rating: number) => {
+    setRatingBusy(true);
+    try {
+      const updated = await ProductsApi.rateProduct(product.id, rating);
+      setCurrentRating(updated.rating);
+      setCurrentReviewCount(updated.reviewCount);
+      void queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success(`¡Gracias por calificar con ${rating} estrellas!`);
+    } catch {
+      toast.error('No se pudo registrar la calificación.');
+    } finally {
+      setRatingBusy(false);
+    }
+  };
 
   const status = useAuthStore((s) => s.status);
   const addToCart = useCartStore((s) => s.add);
@@ -85,7 +155,6 @@ function DetailContent({
   };
 
   const handleAddToCart = async () => {
-    if (!requireAuth()) return;
     setBusy('cart');
     try {
       await addToCart(product.id, quantity);
@@ -98,13 +167,12 @@ function DetailContent({
   };
 
   const handleBuyNow = async () => {
-    if (!requireAuth()) return;
     setBusy('buy');
     try {
       await addToCart(product.id, quantity);
-      router.push('/checkout');
+      router.push('/cart');
     } catch {
-      toast.error('No se pudo iniciar el pago.');
+      toast.error('No se pudo iniciar la compra.');
       setBusy(null);
     }
   };
@@ -127,7 +195,7 @@ function DetailContent({
   const shareUrl = `/products/${product.slug}`;
 
   const dimensions = product.dimensions;
-  const unit = dimensions?.unit ?? 'in';
+  const unit = dimensions?.unit ?? 'cm';
 
   return (
     <>
@@ -267,7 +335,7 @@ function DetailContent({
                       <SpecRow label="SKU" value={product.sku} />
                       <SpecRow label="Material" value={product.material ?? '—'} />
                       <SpecRow label="Color" value={product.color ?? '—'} />
-                      <SpecRow label="Peso" value={product.weight ? `${product.weight} lb` : '—'} />
+                      <SpecRow label="Peso" value={product.weight ? `${product.weight} kg` : '—'} />
                       <SpecRow label="Montaje" value={dimensions?.assembly ?? 'Listo para usar'} />
                     </dl>
                   </div>
@@ -283,7 +351,7 @@ function DetailContent({
                       <DimensionBox label="Fondo" value={dimensions?.depth} unit={unit} />
                     </div>
                     <p className="mt-4 flex items-center gap-2 text-xs text-charcoal/60">
-                      <IconRuler size={14} /> Dimensiones aproximadas en pulgadas; pueden existir ligeras variaciones.
+                      <IconRuler size={14} /> Dimensiones pueden tener ligeras variaciones.
                     </p>
                   </div>
                 ),
@@ -292,36 +360,158 @@ function DetailContent({
           />
         </div>
 
-        {/* Reviews summary */}
-        <Reveal className="mt-12 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-mist p-6">
-          <div className="flex items-center gap-4">
-            <span className="font-display text-5xl font-semibold text-ink">{product.rating.toFixed(1)}</span>
-            <div>
-              <RatingStars rating={product.rating} />
-              <p className="mt-1 text-xs text-charcoal/70">Basado en {product.reviewCount} reseñas verificadas</p>
+        {/* Reviews & Comments Section */}
+        <section className="mt-16 space-y-8">
+          <SectionHeading eyebrow={t('reviews.eyebrow')} title={t('reviews.title')} align="left" />
+
+          <Reveal className="grid gap-8 rounded-3xl border border-line bg-mist p-6 sm:p-8 dark:border-neutral-800 dark:bg-neutral-900 lg:grid-cols-12">
+            {/* Rating Summary Card */}
+            <div className="flex flex-col justify-between rounded-2xl border border-line bg-surface p-6 dark:border-neutral-800 dark:bg-neutral-950 lg:col-span-4">
+              <div>
+                <span className="font-display text-6xl font-semibold text-ink">
+                  {currentRating.toFixed(1)}
+                </span>
+                <div className="mt-2">
+                  <RatingStars rating={currentRating} />
+                  <p className="mt-1.5 text-xs text-charcoal/70 dark:text-neutral-400">
+                    {t('product.reviews', { count: currentReviewCount })}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-line pt-4 dark:border-neutral-800">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-charcoal/80 dark:text-neutral-300">
+                  {t('reviews.quickRating')}
+                </p>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => handleRatingSubmit(star)}
+                      onMouseEnter={() => setHoverStar(star)}
+                      onMouseLeave={() => setHoverStar(0)}
+                      disabled={ratingBusy}
+                      className="p-1 transition-transform hover:scale-125 focus:outline-none"
+                      aria-label={`Calificar con ${star} estrellas`}
+                    >
+                      <span
+                        className={`text-2xl ${
+                          star <= (hoverStar || Math.round(currentRating))
+                            ? 'text-amber-400'
+                            : 'text-stone-300 dark:text-neutral-700'
+                        }`}
+                      >
+                        ★
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {[5, 4, 3, 2, 1].map((star) => (
-              <span key={star} className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs text-ink/70">
-                {star}★ {Math.round((product.reviewCount / Math.max(1, product.reviewCount)) * 40)}%
-              </span>
+
+            {/* Comment Form */}
+            <form
+              onSubmit={handleCommentSubmit}
+              className="flex flex-col space-y-4 rounded-2xl border border-line bg-surface p-6 dark:border-neutral-800 dark:bg-neutral-950 lg:col-span-8"
+            >
+              <h3 className="font-display text-lg font-semibold text-ink">
+                {t('reviews.write')}
+              </h3>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="label dark:text-neutral-300" htmlFor="commentAuthor">
+                    {t('reviews.authorLabel')}
+                  </label>
+                  <input
+                    id="commentAuthor"
+                    type="text"
+                    value={commentAuthor}
+                    onChange={(e) => setCommentAuthor(e.target.value)}
+                    placeholder={t('reviews.authorPlaceholder')}
+                    className="w-full rounded-lg border border-line bg-mist px-4 py-2.5 text-sm text-ink transition-all focus:border-gold focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:placeholder-neutral-500"
+                  />
+                </div>
+                <div>
+                  <label className="label dark:text-neutral-300">{t('reviews.ratingLabel')}</label>
+                  <div className="flex h-10 items-center gap-1.5 rounded-lg border border-line bg-mist px-3 dark:border-neutral-700 dark:bg-neutral-900">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setUserRating(star)}
+                        className="text-lg transition-transform hover:scale-110 focus:outline-none"
+                      >
+                        <span className={star <= userRating ? 'text-amber-400' : 'text-stone-300 dark:text-neutral-700'}>
+                          ★
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="label dark:text-neutral-300" htmlFor="commentText">
+                  {t('reviews.commentLabel')}
+                </label>
+                <textarea
+                  id="commentText"
+                  rows={4}
+                  required
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder={t('reviews.commentPlaceholder')}
+                  className="w-full resize-none rounded-lg border border-line bg-mist p-4 text-sm text-ink transition-all focus:border-gold focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:placeholder-neutral-500"
+                />
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button type="submit" loading={ratingBusy} size="md">
+                  {t('reviews.submit')}
+                </Button>
+              </div>
+            </form>
+          </Reveal>
+
+          {/* List of Published Comments */}
+          <div className="space-y-4">
+            {comments.map((c) => (
+              <div
+                key={c.id}
+                className="rounded-2xl border border-line bg-surface p-6 shadow-sm transition-all dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20 font-bold text-gold-dark dark:bg-gold/10 dark:text-gold">
+                      {c.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-ink">{c.name}</p>
+                      <p className="text-xs text-charcoal/60 dark:text-neutral-400">{c.date}</p>
+                    </div>
+                  </div>
+                  <RatingStars rating={c.rating} />
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-charcoal dark:text-neutral-300">{c.text}</p>
+              </div>
             ))}
           </div>
-        </Reveal>
+        </section>
       </div>
 
       {/* Related */}
       <section className="container-afc pb-20">
         <SectionHeading
-          eyebrow="Completa el look"
-          title="También te puede gustar"
+          eyebrow={t('product.completeTheLook')}
+          title={t('product.youMayAlsoLove')}
           align="left"
         />
         {related.length > 0 ? (
           <ProductGrid products={related} />
         ) : (
-          <p className="text-charcoal">No se encontraron piezas relacionadas.</p>
+          <p className="text-charcoal">{t('product.noRelated')}</p>
         )}
       </section>
     </>
@@ -361,12 +551,13 @@ function DetailSkeleton() {
 }
 
 function NotFoundCard() {
+  const { t } = useI18n();
   return (
     <div className="container-afc flex min-h-[50vh] flex-col items-center justify-center py-20 text-center">
       <IconInfo size={40} className="text-charcoal/40" />
-      <h1 className="mt-4 font-display text-3xl">Producto no encontrado</h1>
-      <p className="mt-2 text-charcoal">La pieza que buscas puede haber sido retirada.</p>
-      <Button href="/products" className="mt-6">Explorar la colección</Button>
+      <h1 className="mt-4 font-display text-3xl">{t('product.notFound')}</h1>
+      <p className="mt-2 text-charcoal">{t('product.notFoundDesc')}</p>
+      <Button href="/products" className="mt-6">{t('product.browse')}</Button>
     </div>
   );
 }

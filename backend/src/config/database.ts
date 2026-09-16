@@ -100,7 +100,6 @@ model Product {
   brand         String
   price         Decimal        @db.Decimal(10, 2)
   compareAtPrice Decimal?      @db.Decimal(10, 2)
-  currency      String         @default("USD")
   images        String[]
   sku           String         @unique
   stock         Int            @default(0)

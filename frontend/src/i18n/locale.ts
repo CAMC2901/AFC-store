@@ -1,55 +1,19 @@
 export type Locale = 'es' | 'en';
 
-/** Default locale is Spanish (Colombia) — Colombian pesos. */
+/** Default locale is Spanish (Colombia). */
 export const DEFAULT_LOCALE: Locale = 'es';
 
-/** Currency config per locale. */
-export const LOCALE_CURRENCY: Record<Locale, string> = {
-  en: 'USD',
-  es: 'COP',
-};
-
 /**
- * Exchange rate configuration (USD base).
- * Future-ready: populate from a provider, saw notification, or admin settings.
+ * The store operates exclusively in Colombian Pesos (COP). Amounts are stored
+ * and displayed in COP with no currency conversion.
  */
-export const EXCHANGE_RATES: Record<string, number> = {
-  USD: 1,
-  COP: 4200,
-};
-
-export interface LocaleStrings {
-  format: 'intl' | 'suffix';
-  suffix?: string;
-}
-
-/**
- * Format an amount (in USD) for a locale, converting units and applying local
- * number/currency conventions.
- */
-export function formatCurrency(
-  amountUSD: number,
-  locale: Locale,
-  currency?: string
-): string {
-  const code = currency ?? LOCALE_CURRENCY[locale];
-  const rate = EXCHANGE_RATES[code] ?? 1;
-  const value = amountUSD * rate;
-
-  if (code === 'COP') {
-    // e.g. $1.250.000 COP
-    const formatted = new Intl.NumberFormat('es-CO', {
-      maximumFractionDigits: 0,
-      minimumFractionDigits: 0,
-    }).format(Math.round(value));
-    return `$${formatted} COP`;
-  }
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
-  }).format(value);
+export function formatCurrency(amountCOP: number): string {
+  // e.g. $1.250.000 COP
+  const formatted = new Intl.NumberFormat('es-CO', {
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(Math.round(amountCOP));
+  return `$${formatted} COP`;
 }
 
 /** Simple date formatting per locale. */

@@ -23,7 +23,11 @@ export const productSlugSchema = z.object({
 });
 
 export const productIdSchema = z.object({
-  productId: id,
+  id: id,
+});
+
+export const rateProductSchema = z.object({
+  rating: z.number().int().min(1).max(5),
 });
 
 export const dimensionsSchema = z
@@ -44,7 +48,6 @@ export const createProductSchema = z.object({
   brand: z.string().trim().min(1).max(80).default('AFC Studio'),
   price: z.number().positive(),
   compareAtPrice: z.number().positive().optional(),
-  currency: z.string().trim().length(3).default('USD'),
   images: z.array(z.string().url()).min(1).default([]),
   sku: z.string().trim().min(1).max(40).optional(),
   stock: z.number().int().min(0).default(0),

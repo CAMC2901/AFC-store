@@ -8,8 +8,11 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { RevealGroup, RevealItem } from '@/components/ui/Reveal';
 import { IconArrowRight } from '@/components/ui/Icons';
 
+import { useI18n } from '@/i18n';
+
 export function CategoriesShowcase() {
   const { data: categories, isLoading } = useCategories();
+  const { t } = useI18n();
 
   if (isLoading) {
     return (
@@ -27,9 +30,8 @@ export function CategoriesShowcase() {
   return (
     <section className="container-afc py-20">
       <SectionHeading
-        eyebrow="Compra por estancia"
-        title="Cada estancia, considerada"
-        subtitle="Desde sofás esculturales hasta iluminación de autor: encuentra las piezas que hacen que tu espacio sea inconfundiblemente tuyo."
+        eyebrow={t('home.categories.eyebrow')}
+        title={t('home.categories.title')}
       />
       <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories?.map((category) => (
@@ -45,15 +47,15 @@ export function CategoriesShowcase() {
                 sizes="(max-width: 768px) 100vw, 33vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5">
                 <div>
-                  <h3 className="font-display text-xl text-ivory">{category.name}</h3>
-                  <p className="mt-1 text-xs uppercase tracking-widest text-ivory/60">
-                    {category.productCount ?? 0} piezas
+                  <h3 className="font-display text-xl text-white">{category.name}</h3>
+                  <p className="mt-1 text-xs uppercase tracking-widest text-white/70">
+                    {category.productCount ?? 0} {t('cart.items')}
                   </p>
                 </div>
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory/10 text-ivory backdrop-blur transition-all duration-300 group-hover:bg-gold group-hover:text-ink">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-all duration-300 group-hover:bg-gold group-hover:text-neutral-950">
                   <IconArrowRight size={17} />
                 </span>
               </div>

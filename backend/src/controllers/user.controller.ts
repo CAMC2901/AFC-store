@@ -41,8 +41,7 @@ export const UserController = {
     if (!valid) throw new UnauthorizedError('Current password is incorrect.');
 
     const passwordHash = await hashPassword(newPassword);
-    await repositories.users.update(req.userId!, {});
-    user.passwordHash = passwordHash;
+    await repositories.users.update(req.userId!, { passwordHash });
     await AuthService.setRefreshToken(user.id, null);
     res.json(success(null, 'Password changed. Please log in again.'));
   },

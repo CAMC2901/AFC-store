@@ -18,11 +18,14 @@ export default function LoginPage() {
   );
 }
 
+import { useI18n } from '@/i18n';
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get('next') ?? '/account';
   const login = useAuthStore((s) => s.login);
+  const { t, locale } = useI18n();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,7 +41,7 @@ function LoginForm() {
       await login(email, password);
       router.push(next);
     } catch (err) {
-      setError(getErrorMessage(err, 'Correo electrónico o contraseña no válidos.'));
+      setError(getErrorMessage(err, locale === 'en' ? 'Invalid email or password.' : 'Correo electrónico o contraseña no válidos.'));
     } finally {
       setLoading(false);
     }
@@ -51,8 +54,8 @@ function LoginForm() {
           <div className="mb-4 flex justify-center">
             <Logo />
           </div>
-          <h1 className="font-display text-3xl">Bienvenido de nuevo</h1>
-          <p className="mt-2 text-sm text-charcoal">Inicia sesión para continuar a tu cuenta.</p>
+          <h1 className="font-display text-3xl">{locale === 'en' ? 'Welcome back' : 'Bienvenido de nuevo'}</h1>
+          <p className="mt-2 text-sm text-charcoal">{locale === 'en' ? 'Sign in to continue to your account.' : 'Inicia sesión para continuar a tu cuenta.'}</p>
         </div>
 
         <form onSubmit={submit} className="card space-y-5 p-7">
@@ -63,7 +66,7 @@ function LoginForm() {
           )}
 
           <Input
-            label="Correo electrónico"
+            label={t('auth.email')}
             type="email"
             name="email"
             placeholder="you@example.com"
@@ -74,7 +77,7 @@ function LoginForm() {
           />
           <div className="relative">
             <Input
-              label="Contraseña"
+              label={t('auth.password')}
               type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="••••••••"
@@ -87,7 +90,7 @@ function LoginForm() {
               type="button"
               onClick={() => setShowPassword((v) => !v)}
               className="absolute right-3 top-9 text-charcoal/60 hover:text-ink"
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-label={locale === 'en' ? (showPassword ? 'Hide password' : 'Show password') : (showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña')}
             >
               {showPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
             </button>
@@ -95,28 +98,22 @@ function LoginForm() {
 
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2 text-charcoal">
-              <input type="checkbox" className="h-4 w-4 accent-ink" /> Recuérdame
+              <input type="checkbox" className="h-4 w-4 accent-ink" /> {t('auth.rememberMe')}
             </label>
-            <Link href="/login" className="text-gold-dark hover:underline">
-              ¿Olvidaste tu contraseña?
+            <Link href="/forgot-password" className="text-gold-dark hover:underline font-medium">
+              {t('auth.forgot')}
             </Link>
           </div>
 
           <Button type="submit" fullWidth loading={loading} size="lg">
-            Iniciar sesión <IconArrowRight size={16} />
+            {t('auth.login')} <IconArrowRight size={16} />
           </Button>
-
-          <div className="rounded-xl bg-mist p-3 text-xs text-charcoal/70">
-            <p className="font-semibold text-ink">Cuentas de demostración</p>
-            <p>Admin: admin@afcfurniture.com / Admin@1234</p>
-            <p>Cliente: customer@afcfurniture.com / Customer@1234</p>
-          </div>
         </form>
 
         <p className="mt-6 text-center text-sm text-charcoal">
-          ¿Nuevo en AFC?{' '}
+          {t('auth.newHere')}{' '}
           <Link href="/register" className="font-semibold text-gold-dark hover:underline">
-            Crea una cuenta
+            {t('auth.register')}
           </Link>
         </p>
       </div>

@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api-client';
-import type { Address, Coupon, Paginated, Product, User, AdminSummary, Order } from '@/types';
+import type { Address, AdminAnalytics, Coupon, Paginated, Product, User, Order } from '@/types';
 
 export const AccountApi = {
   async updateProfile(payload: Partial<Pick<User, 'firstName' | 'lastName' | 'phone' | 'email'>>): Promise<User> {
@@ -72,6 +72,20 @@ export const AdminApi = {
     return data.data;
   },
 
+  async createCategory(payload: { name: string; slug?: string; description?: string; imageUrl?: string; sortOrder?: number }) {
+    const { data } = await apiClient.post<{ data: { category: import('@/types').Category } }>('/admin/categories', payload);
+    return data.data.category;
+  },
+
+  async updateCategory(id: string, payload: Partial<{ name: string; slug: string; description: string; imageUrl: string; sortOrder: number }>) {
+    const { data } = await apiClient.patch<{ data: { category: import('@/types').Category } }>(`/admin/categories/${id}`, payload);
+    return data.data.category;
+  },
+
+  async deleteCategory(id: string) {
+    await apiClient.delete(`/admin/categories/${id}`);
+  },
+
   async orders(params: { page?: number; limit?: number; status?: string } = {}) {
     const { data } = await apiClient.get<{ data: Paginated<Order> }>('/admin/orders', { params });
     return data.data;
@@ -95,10 +109,24 @@ export const AdminApi = {
     return data.data;
   },
 
-  async analytics() {
-    const { data } = await apiClient.get<{ data: { summary: AdminSummary; topProducts: Product[]; lowStock: Product[] } }>(
-      '/admin/analytics'
-    );
+  async createCoupon(payload: Partial<Coupon>): Promise<Coupon> {
+    const { data } = await apiClient.post<{ data: { coupon: Coupon } }>('/admin/coupons', payload);
+    return data.data.coupon;
+  },
+
+  async updateCoupon(id: string, payload: Partial<Coupon>): Promise<Coupon> {
+    const { data } = await apiClient.patch<{ data: { coupon: Coupon } }>(`/admin/coupons/${id}`, payload);
+    return data.data.coupon;
+  },
+
+  async deleteCoupon(id: string): Promise<void> {
+    await apiClient.delete(`/admin/coupons/${id}`);
+  },
+
+  async analytics(days = 30): Promise<AdminAnalytics> {
+    const { data } = await apiClient.get<{ data: AdminAnalytics }>('/admin/analytics', {
+      params: { days },
+    });
     return data.data;
   },
 };

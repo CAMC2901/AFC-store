@@ -8,23 +8,25 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { RevealGroup, RevealItem } from '@/components/ui/Reveal';
 import { IconArrowRight } from '@/components/ui/Icons';
 import Link from 'next/link';
+import { useI18n } from '@/i18n';
 
 export function FeaturedProducts() {
   const { data: products, isLoading, isError } = useFeaturedProducts();
+  const { t } = useI18n();
 
   return (
-    <section className="bg-mist/50 py-20">
+    <section className="bg-mist/50 py-20 dark:bg-neutral-950">
       <div className="container-afc">
         <SectionHeading
-          eyebrow="Seleccionadas"
-          title="Piezas destacadas"
-          subtitle="Una selección curada de nuestros diseños más queridos, elegidos por el equipo del estudio AFC."
+          eyebrow={t('home.featured.eyebrow')}
+          title={t('home.featured.title')}
+          subtitle={t('home.featured.subtitle')}
           action={
             <Link
               href="/products?featured=true"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-gold-dark transition-colors hover:text-ink"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-gold-dark transition-colors hover:text-ink dark:hover:text-ivory"
             >
-              Ver todas las destacadas <IconArrowRight size={16} />
+              {t('common.viewAll')} <IconArrowRight size={16} />
             </Link>
           }
         />

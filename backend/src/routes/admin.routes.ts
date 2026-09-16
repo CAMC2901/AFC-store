@@ -28,8 +28,8 @@ router.get('/analytics', AdminController.analytics);
 // ---- Products ----
 router.get('/products', AdminController.listProducts);
 router.post('/products', validate(createProductSchema), AdminController.createProduct);
-router.patch('/products/:id', validate(updateProductSchema), AdminController.updateProduct);
-router.delete('/products/:id', AdminController.deleteProduct);
+router.patch('/products/:id', validate(productIdSchema, 'params'), validate(updateProductSchema), AdminController.updateProduct);
+router.delete('/products/:id', validate(productIdSchema, 'params'), AdminController.deleteProduct);
 router.post('/products/:id/stock', validate(productIdSchema, 'params'), validate(stockAdjustSchema), AdminController.adjustStock);
 
 // ---- Categories ----

@@ -11,6 +11,8 @@ export interface CartLineInput {
 export interface CartLine {
   productId: string;
   name: string;
+  /** English variant of `name`. */
+  nameEn?: string;
   slug: string;
   image: string;
   unitPrice: number;
@@ -32,16 +34,28 @@ export interface CartTotals {
 export type ShippingMethod = 'standard' | 'express';
 
 export const CartService = {
-  /** Resolves stored line items into hydrated product lines. */
   async hydrate(userId: string): Promise<CartLine[]> {
     const stored = await repositories.carts.getCart(userId);
     const lines: CartLine[] = [];
+    let cartModified = false;
+    const activeItems: Array<{ productId: string; quantity: number }> = [];
+
     for (const item of stored) {
       const product = await repositories.products.findById(item.productId);
-      if (!product || !product.isActive) continue;
+      if (!product || !product.isActive) {
+        cartModified = true;
+        continue;
+      }
+      const validQty = Math.min(item.quantity, Math.max(1, product.stock));
+      if (validQty !== item.quantity) {
+        cartModified = true;
+        item.quantity = validQty;
+      }
+      activeItems.push({ productId: item.productId, quantity: item.quantity });
       lines.push({
         productId: product.id,
         name: product.name,
+        nameEn: product.nameEn,
         slug: product.slug,
         image: product.images[0] ?? '',
         unitPrice: product.price,
@@ -50,6 +64,11 @@ export const CartService = {
         stock: product.stock,
       });
     }
+
+    if (cartModified) {
+      await repositories.carts.saveCart(userId, activeItems);
+    }
+
     return lines;
   },
 
@@ -104,7 +123,7 @@ export const CartService = {
 
     let discount = 0;
     if (couponCode) {
-      const coupon = await repositories.coupons.validate(couponCode, subtotal);
+      const coupon = await repositories.coupons.validate(couponCode, subtotal, userId);
       if (coupon) {
         discount =
           coupon.type === 'PERCENTAGE'
@@ -137,10 +156,10 @@ export const CartService = {
   },
 
   /** Validate a coupon in isolation (for the coupon field UX). */
-  async validateCoupon(code: string, subtotal: number) {
-    const coupon = await repositories.coupons.validate(code, subtotal);
+  async validateCoupon(code: string, subtotal: number, userId?: string) {
+    const coupon = await repositories.coupons.validate(code, subtotal, userId);
     if (!coupon) {
-      throw new NotFoundError('Coupon');
+      throw new NotFoundError('Este cupón no es válido, ha expirado o ya ha sido utilizado por tu cuenta.');
     }
     return {
       code: coupon.code,

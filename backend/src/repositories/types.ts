@@ -38,6 +38,7 @@ export interface UpdateUserInput {
   lastName?: string;
   phone?: string;
   email?: string;
+  passwordHash?: string;
   isActive?: boolean;
 }
 
@@ -106,6 +107,7 @@ export interface IProductRepository {
   update(id: string, input: Partial<Product>): Promise<Product | null>;
   delete(id: string): Promise<boolean>;
   adjustStock(id: string, delta: number): Promise<Product | null>;
+  addRating(id: string, rating: number): Promise<Product | null>;
   count(): Promise<number>;
   minMaxPrice(): Promise<{ min: number; max: number }>;
   topSelling(limit: number): Promise<Product[]>;
@@ -137,6 +139,7 @@ export interface IOrderRepository {
   revenue(): Promise<number>;
   ordersByStatus(): Promise<Array<{ status: string; count: number }>>;
   recent(limit: number): Promise<Order[]>;
+  all(): Promise<Order[]>;
 }
 
 export interface ICouponRepository {
@@ -145,8 +148,9 @@ export interface ICouponRepository {
   create(input: CreateCouponInput): Promise<Coupon>;
   update(id: string, input: Partial<Coupon>): Promise<Coupon | null>;
   delete(id: string): Promise<boolean>;
-  incrementUsage(code: string): Promise<void>;
-  validate(code: string, subtotal: number): Promise<Coupon | null>;
+  incrementUsage(code: string, userId?: string): Promise<void>;
+  validate(code: string, subtotal: number, userId?: string): Promise<Coupon | null>;
+  hasUserUsed(code: string, userId: string): Promise<boolean>;
 }
 
 export interface IWishlistRepository {

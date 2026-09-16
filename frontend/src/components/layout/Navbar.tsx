@@ -18,6 +18,7 @@ import {
 import { Logo } from './Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { LocaleSwitcher } from './LocaleSwitcher';
+import { FREE_SHIPPING_THRESHOLD } from '@/constants';
 
 const NAV_KEY: Array<{ t: string; href: string }> = [
   { t: 'nav.living', href: '/products?category=living-room' },
@@ -121,7 +122,7 @@ export function Navbar() {
 
       {/* Trust strip */}
       <div className="hidden items-center justify-center gap-10 border-t border-line py-2 text-[11px] font-medium uppercase tracking-widest text-charcoal/70 lg:flex">
-        <span>{t('trust.freeShipping', { amount: formatMoney(1499) })}</span>
+        <span>{t('trust.freeShipping', { amount: formatMoney(FREE_SHIPPING_THRESHOLD) })}</span>
         <span className="text-gold">·</span>
         <span>{t('trust.warranty')}</span>
         <span className="text-gold">·</span>

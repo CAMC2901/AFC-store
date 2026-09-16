@@ -52,18 +52,22 @@ export function Button(props: ButtonProps) {
     </>
   );
 
-  if (props.href) {
-    const { href, ...rest } = props as ButtonAsLink;
+  if ('href' in props && props.href) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { href, variant: _v, size: _s, fullWidth: _fw, loading: _l, className: _c, children: _ch, ...linkProps } = props as ButtonAsLink;
+
     return (
-      <Link href={href} className={classes} {...rest}>
+      <Link href={href} className={classes} {...linkProps}>
         {content}
       </Link>
     );
   }
 
-  const buttonProps = props as ButtonAsButton;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { variant: _v, size: _s, fullWidth: _fw, loading: _l, className: _c, children: _ch, disabled, ...buttonProps } = props as ButtonAsButton;
+
   return (
-    <button className={classes} disabled={loading || buttonProps.disabled} {...buttonProps}>
+    <button className={classes} disabled={loading || disabled} {...buttonProps}>
       {content}
     </button>
   );

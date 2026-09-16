@@ -7,8 +7,11 @@ export const ProductService = {
     return repositories.products.findAll(filters);
   },
 
-  async getBySlug(slug: string): Promise<Product> {
-    const product = await repositories.products.findBySlug(slug);
+  async getBySlug(slugOrId: string): Promise<Product> {
+    let product = await repositories.products.findBySlug(slugOrId);
+    if (!product) {
+      product = await repositories.products.findById(slugOrId);
+    }
     if (!product || !product.isActive) throw new NotFoundError('Product');
     return product;
   },
@@ -53,6 +56,12 @@ export const ProductService = {
 
   async adjustStock(id: string, delta: number): Promise<Product> {
     const product = await repositories.products.adjustStock(id, delta);
+    if (!product) throw new NotFoundError('Product');
+    return product;
+  },
+
+  async addRating(id: string, rating: number): Promise<Product> {
+    const product = await repositories.products.addRating(id, rating);
     if (!product) throw new NotFoundError('Product');
     return product;
   },

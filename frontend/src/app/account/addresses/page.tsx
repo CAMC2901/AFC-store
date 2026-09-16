@@ -19,7 +19,7 @@ const emptyForm = {
   city: '',
   state: '',
   postalCode: '',
-  country: 'US',
+  country: 'Colombia',
   isDefault: false,
 };
 
@@ -39,13 +39,17 @@ export default function AddressesPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const updated = await AccountApi.addAddress(form);
+      const updated = await AccountApi.addAddress({
+        ...form,
+        line2: form.line2 || undefined,
+      });
       setAddresses(updated);
       setForm(emptyForm);
       setShowForm(false);
-      toast.success('Dirección añadida.');
-    } catch {
-      toast.error('No se pudo añadir la dirección.');
+      toast.success('Dirección añadida con éxito.');
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'response' in err && (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+      toast.error(String(msg || 'No se pudo añadir la dirección. Verifica los datos.'));
     } finally {
       setSaving(false);
     }

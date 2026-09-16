@@ -10,10 +10,10 @@ import { getErrorMessage } from '@/lib/errors';
 import toast from 'react-hot-toast';
 
 const channels = [
-  { icon: IconPhone, title: 'Llámanos', value: '+1 (555) 123-4567', href: 'tel:+15551234567', sub: 'Lun–Sáb, 9am–8pm ET' },
+  { icon: IconPhone, title: 'Llámanos', value: '+57 (300) 123-4567', href: 'tel:+573001234567', sub: 'Lun–Sáb, 8am–7pm COT' },
   { icon: IconMail, title: 'Correo', value: 'care@afcfurniture.com', href: 'mailto:care@afcfurniture.com', sub: 'Respondemos en menos de 24 horas' },
-  { icon: IconPin, title: 'Sala de exposición', value: '1280 Fifth Avenue, New York', sub: 'Con cita previa' },
-  { icon: IconWhatsApp, title: 'WhatsApp', value: 'Chatea con nuestro equipo', href: 'https://wa.me/15551234567', sub: 'Respuesta más rápida' },
+  { icon: IconPin, title: 'Sala de exposición', value: 'Calle 76 # 54-11, Alto Prado, Barranquilla', sub: 'Con cita previa' },
+  { icon: IconWhatsApp, title: 'WhatsApp', value: 'Chatea con nuestro equipo', href: 'https://wa.me/573001234567', sub: 'Respuesta más rápida' },
 ];
 
 export default function ContactPage() {

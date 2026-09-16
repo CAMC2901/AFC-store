@@ -64,6 +64,11 @@ export const setRefreshTokenCookie = (res: Response, token: string): void => {
 };
 
 export const clearAuthCookies = (res: Response): void => {
-  res.clearCookie(COOKIE_NAMES.ACCESS, { path: '/' });
-  res.clearCookie(COOKIE_NAMES.REFRESH, { path: '/api/v1/auth' });
+  const options = {
+    httpOnly: true,
+    secure: isProduction && env.jwt.cookieSecure,
+    sameSite: 'lax' as const,
+  };
+  res.clearCookie(COOKIE_NAMES.ACCESS, { ...options, path: '/' });
+  res.clearCookie(COOKIE_NAMES.REFRESH, { ...options, path: '/api/v1/auth' });
 };

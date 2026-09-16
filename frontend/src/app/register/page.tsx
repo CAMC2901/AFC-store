@@ -36,7 +36,11 @@ export default function RegisterPage() {
     const next: Record<string, string> = {};
 
     if (form.password !== form.confirm) next.confirm = 'Las contraseñas no coinciden.';
-    if (form.password.length < 8) next.password = 'La contraseña debe tener al menos 8 caracteres.';
+    if (form.password.length < 8) {
+      next.password = 'La contraseña debe tener al menos 8 caracteres.';
+    } else if (!/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/[0-9]/.test(form.password) || !/[^A-Za-z0-9]/.test(form.password)) {
+      next.password = 'Debe contener mayúscula, minúscula, número y carácter especial.';
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = 'Ingresa un correo electrónico válido.';
     if (form.firstName.trim().length < 2) next.firstName = 'El nombre es obligatorio.';
     if (form.lastName.trim().length < 2) next.lastName = 'El apellido es obligatorio.';

@@ -1,10 +1,4 @@
-/**
- * Repository container.
- *
- * To switch persistence to PostgreSQL/Prisma, implement the interfaces from
- * ./types using PrismaClient and return them from this module. Everything
- * else (services, controllers, routes) stays untouched.
- */
+import { env } from '../config/env';
 import {
   ICartRepository,
   ICategoryRepository,
@@ -27,6 +21,17 @@ import {
   InMemoryUserRepository,
   InMemoryWishlistRepository,
 } from './index';
+import {
+  PrismaCartRepository,
+  PrismaCategoryRepository,
+  PrismaCouponRepository,
+  PrismaNewsletterRepository,
+  PrismaOrderRepository,
+  PrismaProductRepository,
+  PrismaTestimonialRepository,
+  PrismaUserRepository,
+  PrismaWishlistRepository,
+} from './prisma';
 
 export interface Repositories {
   users: IUserRepository;
@@ -40,14 +45,33 @@ export interface Repositories {
   testimonials: ITestimonialRepository;
 }
 
-export const repositories: Repositories = {
-  users: new InMemoryUserRepository(),
-  products: new InMemoryProductRepository(),
-  categories: new InMemoryCategoryRepository(),
-  carts: new InMemoryCartRepository(),
-  orders: new InMemoryOrderRepository(),
-  coupons: new InMemoryCouponRepository(),
-  wishlist: new InMemoryWishlistRepository(),
-  newsletter: new InMemoryNewsletterRepository(),
-  testimonials: new InMemoryTestimonialRepository(),
+const buildRepositories = (): Repositories => {
+  if (env.prismaEnabled) {
+    console.log('[Repositories] Initializing Supabase/Prisma PostgreSQL persistence layer...');
+    return {
+      users: new PrismaUserRepository(),
+      products: new PrismaProductRepository(),
+      categories: new PrismaCategoryRepository(),
+      carts: new PrismaCartRepository(),
+      orders: new PrismaOrderRepository(),
+      coupons: new PrismaCouponRepository(),
+      wishlist: new PrismaWishlistRepository(),
+      newsletter: new PrismaNewsletterRepository(),
+      testimonials: new PrismaTestimonialRepository(),
+    };
+  }
+
+  return {
+    users: new InMemoryUserRepository(),
+    products: new InMemoryProductRepository(),
+    categories: new InMemoryCategoryRepository(),
+    carts: new InMemoryCartRepository(),
+    orders: new InMemoryOrderRepository(),
+    coupons: new InMemoryCouponRepository(),
+    wishlist: new InMemoryWishlistRepository(),
+    newsletter: new InMemoryNewsletterRepository(),
+    testimonials: new InMemoryTestimonialRepository(),
+  };
 };
+
+export const repositories: Repositories = buildRepositories();

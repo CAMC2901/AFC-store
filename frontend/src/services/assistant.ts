@@ -7,27 +7,43 @@ export interface ChatMessage {
 
 export interface AssistantReply {
   reply: string;
+  provider?: 'gemini' | 'ollama';
   suggestions?: string[];
 }
 
 /**
  * AI advisor client.
  *
- * TODO(mock): Replace this stub with a real model integration. Two options:
- *   1. Keep a backend endpoint (e.g. POST /api/v1/assistant/chat) that proxies
- *      to an LLM, and call it here via `apiClient` from '@/lib/api-client'.
- *   2. Call your provider SDK directly (OpenAI, Anthropic, Gemini, etc.).
- *
- * The UI already handles typing animation, conversation history, suggested
- * prompts and errors — only this `ask` implementation needs to change.
+ * Delegates to the backend endpoint `POST /api/v1/assistant/chat`, which:
+ *   1. Builds an embedded RAG context (catalog + store policies in COP).
+ *   2. Answers via Gemini (GEMINI_API_KEY on the server).
+ *   3. Falls back to the local Ollama phi3 model when the Gemini key is
+ *      missing, exhausted or rate-limited.
+ * The API key never touches the browser.
  */
 export const AssistantApi = {
   ask: async (messages: ChatMessage[]): Promise<AssistantReply> => {
-    // SIMULATED RESPONSE — replaced when the model is connected.
-    const last = [...messages].reverse().find((m) => m.role === 'user');
-    await new Promise((r) => setTimeout(r, 900));
+    const res = await fetch('/api/v1/assistant/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: messages.map(({ role, content }) => ({ role, content })),
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Assistant request failed: ${res.status}`);
+    }
+
+    const payload = (await res.json()) as {
+      data?: { reply?: string; provider?: 'gemini' | 'ollama' };
+    };
+    const reply = payload.data?.reply?.trim();
+    if (!reply) throw new Error('Empty assistant reply');
+
     return {
-      reply: mockReply(last?.content ?? ''),
+      reply,
+      provider: payload.data?.provider,
       suggestions: ['Ver productos', 'Políticas de envío', 'Métodos de pago', 'Garantía'],
     };
   },
@@ -42,17 +58,3 @@ export const ASSISTANT_SUGGESTIONS = [
 
 export const ASSISTANT_WELCOME =
   '¡Hola! Soy el asistente de AFC Furniture. Puedo ayudarte a elegir muebles, conocer precios, envíos, pagos y garantías. ¿En qué te ayudo?';
-
-function mockReply(input: string): string {
-  const q = input.toLowerCase();
-  if (/(pago|pagar|pse|tarjeta|métodos|formas)/.test(q)) {
-    return 'Aceptamos pagos por PSE, tarjetas de crédito y débito, y otros métodos a través de la pasarela de pago. Puedes elegir tu método al formalizar la compra en el checkout.';
-  }
-  if (/(enví|envio|entrega|envìo|domicilio|garant)/.test(q)) {
-    return 'Ofrecemos entrega white-glove en las principales ciudades y garantía estructural de 10 años en nuestros muebles. El tiempo de entrega depende de tu ubicación.';
-  }
-  if (/(sofá|sofa|sala|mueble|recomend)/.test(q)) {
-    return 'Podemos recomendarte según tu espacio. Explora nuestra colección de salas, comedores y dormitorios — cada pieza incluye dimensiones, materiales y disponibilidad para ayudarte a decidir.';
-  }
-  return 'Claro, déjame guiarte. ¿Buscas un tipo de mueble en particular, o quieres información sobre pagos, envíos o garantías?';
-}

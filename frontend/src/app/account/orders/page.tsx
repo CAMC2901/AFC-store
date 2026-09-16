@@ -12,16 +12,26 @@ import { ORDER_STATUS_LABELS } from '@/constants';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { IconBox } from '@/components/ui/Icons';
 import type { Order } from '@/types';
+import { useI18n } from '@/i18n';
+import { localizeOrderItem } from '@/i18n/localize';
 
 export default function OrdersPage() {
+  const { locale } = useI18n();
   const [orders, setOrders] = useState<Order[] | null>(null);
 
   useEffect(() => {
     setOrders(null);
     OrdersApi.mine()
-      .then((r) => setOrders(r.items))
+      .then((r) =>
+        setOrders(
+          r.items.map((o) => ({
+            ...o,
+            items: o.items.map((item) => localizeOrderItem(item, locale)),
+          }))
+        )
+      )
       .catch(() => setOrders([]));
-  }, []);
+  }, [locale]);
 
   return (
     <div>

@@ -43,6 +43,22 @@ export const AuthController = {
     const user = await AuthService.refreshUser(req.userId!);
     res.json(success({ user }));
   },
+
+  forgotPassword: async (req: Request, res: Response) => {
+    const { email } = req.body as { email: string };
+    const result = await AuthService.forgotPassword(email);
+    res.json(success(result, result.message));
+  },
+
+  resetPassword: async (req: Request, res: Response) => {
+    const { email, resetToken, newPassword } = req.body as {
+      email: string;
+      resetToken: string;
+      newPassword: string;
+    };
+    const result = await AuthService.resetPassword(email, resetToken, newPassword);
+    res.json(success(result, result.message));
+  },
 };
 
 /** Issues both JWTs and writes them to HTTP-only cookies. */

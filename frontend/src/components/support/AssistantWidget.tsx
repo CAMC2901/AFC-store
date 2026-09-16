@@ -109,38 +109,38 @@ export function AssistantWidget() {
           className="flex h-[540px] w-[min(92vw,400px)] flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-card-hover"
         >
           {/* Header */}
-          <div className="flex items-center justify-between bg-ink px-4 py-3.5 text-ivory">
+          <div className="flex items-center justify-between bg-neutral-950 px-4 py-3.5 text-white">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold text-ink">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold text-neutral-950">
                 <IconBot size={22} />
               </span>
               <div>
-                <p className="font-display text-base leading-tight">Asistente AFC</p>
-                <p className="flex items-center gap-1.5 text-xs text-ivory/60">
+                <p className="font-display text-base leading-tight text-white">Asistente AFC</p>
+                <p className="flex items-center gap-1.5 text-xs text-white/70">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                   En línea
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={reset} className="rounded-full px-3 py-1 text-xs text-ivory/60 transition-colors hover:bg-ivory/10">
+              <button onClick={reset} className="rounded-full px-3 py-1 text-xs text-white/70 transition-colors hover:bg-white/10">
                 Nuevo
               </button>
-              <button onClick={() => setOpen(false)} aria-label="Cerrar" className="rounded-full p-2 transition-colors hover:bg-ivory/10">
+              <button onClick={() => setOpen(false)} aria-label="Cerrar" className="rounded-full p-2 text-white/70 transition-colors hover:bg-white/10">
                 <IconClose size={20} />
               </button>
             </div>
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4 dark:bg-neutral-950">
             {messages.length === 0 && (
               <div className="space-y-2">
                 {ASSISTANT_SUGGESTIONS.map((s) => (
                   <button
                     key={s}
                     onClick={() => ask(s)}
-                    className="block w-full rounded-2xl border border-line px-4 py-2.5 text-left text-sm text-charcoal transition-colors hover:border-gold hover:text-gold-dark"
+                    className="block w-full rounded-2xl border border-line bg-surface px-4 py-2.5 text-left text-sm text-ink transition-colors hover:border-gold hover:text-gold-dark dark:border-neutral-800 dark:bg-neutral-900"
                   >
                     {s}
                   </button>
@@ -152,8 +152,8 @@ export function AssistantWidget() {
                 <div
                   className={
                     m.role === 'user'
-                      ? 'max-w-[85%] rounded-2xl rounded-br-sm bg-gold px-4 py-2.5 text-sm text-ink'
-                      : 'max-w-[85%] rounded-2xl rounded-bl-sm border border-line bg-mist px-4 py-2.5 text-sm text-ink'
+                      ? 'max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-gold px-4 py-2.5 text-sm text-neutral-950 font-medium'
+                      : 'max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-line bg-mist px-4 py-2.5 text-sm text-ink dark:border-neutral-800 dark:bg-neutral-900'
                   }
                 >
                   {m.content}
@@ -162,11 +162,11 @@ export function AssistantWidget() {
             ))}
             {typing && (
               <div className="flex justify-start">
-                <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm border border-line bg-mist px-4 py-3">
+                <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm border border-line bg-mist px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900">
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-charcoal/50"
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-charcoal/50 dark:bg-neutral-400"
                       style={{ animationDelay: `${i * 0.15}s` }}
                     />
                   ))}
@@ -181,20 +181,20 @@ export function AssistantWidget() {
               e.preventDefault();
               ask(input);
             }}
-            className="flex items-center gap-2 border-t border-line p-3"
+            className="flex items-center gap-2 border-t border-line p-3 dark:border-neutral-800 dark:bg-neutral-950"
           >
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Escribe tu consulta…"
               aria-label="Escribe tu consulta"
-              className="flex-1 rounded-full border border-line bg-mist px-4 py-2.5 text-sm text-ink placeholder:text-charcoal/50 focus:border-gold focus:outline-none"
+              className="flex-1 rounded-full border border-line bg-mist px-4 py-2.5 text-sm text-ink placeholder:text-charcoal/50 focus:border-gold focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:placeholder:text-neutral-500"
             />
             <button
               type="submit"
               disabled={!input.trim() || typing}
               aria-label="Enviar"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-opacity disabled:opacity-40"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-neutral-950 transition-opacity disabled:opacity-40"
             >
               <IconSend size={18} />
             </button>

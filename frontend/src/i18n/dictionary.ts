@@ -2,7 +2,7 @@ import type { Locale } from './locale';
 
 export const dictionaries = {
   en: {
-    // Common
+    // Navigation
     'nav.categories': 'Categories',
     'nav.search': 'Search',
     'nav.account': 'Account',
@@ -11,7 +11,6 @@ export const dictionaries = {
     'nav.signIn': 'Sign In',
     'nav.signOut': 'Sign Out',
     'nav.theme.toggle': 'Toggle theme',
-
     'nav.living': 'Living Room',
     'nav.bedroom': 'Bedroom',
     'nav.dining': 'Dining',
@@ -19,11 +18,15 @@ export const dictionaries = {
     'nav.lighting': 'Lighting',
     'nav.decor': 'Decor',
 
+    // Trust bar
     'trust.freeShipping': 'Free white-glove delivery over {amount}',
     'trust.warranty': '10-year structural warranty',
     'trust.sustainably': 'Sustainably sourced materials',
     'trust.comfort': '30-day comfort guarantee',
+    'trust.firstClass': 'First-class delivery',
+    'trust.returns30': '30-day returns',
 
+    // Common
     'common.backHome': 'Back to Home',
     'common.viewAll': 'View all',
     'common.loading': 'Loading…',
@@ -41,6 +44,35 @@ export const dictionaries = {
     'common.free': 'Free',
     'common.inStock': 'In Stock',
 
+    // Hero Carousel
+    'hero.exploreCollection': 'Explore Collection',
+    'hero.slide1.eyebrow': 'New Season · The Aurelia Edition',
+    'hero.slide1.title': 'Where comfort meets quiet luxury',
+    'hero.slide1.copy': 'Hand-finished pieces in bouclé, oak, and brass: designed to live in, admire, and inherit.',
+    'hero.slide1.cta': 'Shop Living Room',
+    'hero.slide2.eyebrow': 'The Residence Collection',
+    'hero.slide2.title': 'A home, elevated',
+    'hero.slide2.copy': 'Curated silhouettes for every room in your home, from sculptural sofas to signature lighting.',
+    'hero.slide2.cta': 'Explore Bestsellers',
+    'hero.slide3.eyebrow': 'Artisanal Gatherings',
+    'hero.slide3.title': 'Dine on real materials',
+    'hero.slide3.copy': 'Solid oak and acacia tables built for decades of dinners, celebrations, and everything in between.',
+    'hero.slide3.cta': 'Shop Dining',
+
+    // Home Sections
+    'home.featured.eyebrow': 'Curated Selection',
+    'home.featured.title': 'Featured Masterpieces',
+    'home.featured.subtitle': 'Timeless elegance meets modern craft in our most loved pieces.',
+    'home.categories.eyebrow': 'Explore by Room',
+    'home.categories.title': 'Design for Every Space',
+    'home.promotions.eyebrow': 'Limited Time Offer',
+    'home.promotions.title': 'Exclusive Season Deals',
+    'home.promotions.cta': 'Claim Offer',
+    'home.testimonials.eyebrow': 'Kind Words',
+    'home.testimonials.title': 'Loved by Homes Across America',
+    'home.testimonials.subtitle': 'Designers, homeowners, and hospitality experts trust AFC.',
+
+    // Product Detail
     'product.collection': 'Collection',
     'product.addToCart': 'Add to Cart',
     'product.buyNow': 'Buy Now',
@@ -61,6 +93,20 @@ export const dictionaries = {
     'product.notFoundDesc': 'The piece you are looking for may have been removed.',
     'product.browse': 'Browse the collection',
 
+    // Reviews & Comments
+    'reviews.eyebrow': 'Opinions',
+    'reviews.title': 'Reviews & Comments',
+    'reviews.quickRating': 'Quick Rating',
+    'reviews.write': 'Write a review or comment',
+    'reviews.authorLabel': 'Your Name',
+    'reviews.authorPlaceholder': 'e.g. Mary Smith',
+    'reviews.ratingLabel': 'Rating',
+    'reviews.commentLabel': 'Comment',
+    'reviews.commentPlaceholder': 'What did you think of this product? Share your experience regarding quality, comfort, or delivery...',
+    'reviews.submit': 'Post Comment',
+    'reviews.successToast': 'Your comment and rating have been published!',
+
+    // Cart & Checkout
     'cart.title': 'Your Cart',
     'cart.empty': 'Your cart is empty',
     'cart.emptyDesc': 'Add something beautiful to get started.',
@@ -73,14 +119,15 @@ export const dictionaries = {
     'cart.items': 'items',
 
     'checkout.title': 'Checkout',
-    'checkout.contact': 'Contact',
-    'checkout.shippingAddress': 'Shipping address',
-    'checkout.shippingMethod': 'Shipping method',
+    'checkout.contact': 'Contact Information',
+    'checkout.shippingAddress': 'Shipping Address',
+    'checkout.shippingMethod': 'Shipping Method',
     'checkout.standard': 'Standard (5–7 days)',
     'checkout.express': 'Express (2–3 days)',
-    'checkout.payment': 'Payment',
-    'checkout.placeOrder': 'Place order',
+    'checkout.payment': 'Payment Details',
+    'checkout.placeOrder': 'Place Order',
 
+    // Account & Auth
     'account.title': 'My Account',
     'account.orders': 'My Orders',
     'account.wishlist': 'Wishlist',
@@ -94,12 +141,25 @@ export const dictionaries = {
     'auth.email': 'Email',
     'auth.password': 'Password',
     'auth.forgot': 'Forgot password?',
-    'auth.newHere': "New to AFC? Create an account",
+    'auth.newHere': 'New to AFC? Create an account',
+    'auth.rememberMe': 'Remember me',
 
+    // Footer & Contact
     'footer.newsletter': 'Join our newsletter',
     'footer.newsletterDesc': 'Be first to hear about new arrivals and private offers.',
     'footer.subscribe': 'Subscribe',
+    'footer.rights': 'All rights reserved.',
 
+    'contact.title': 'Contact Us',
+    'contact.subtitle': 'We would love to hear from you',
+    'contact.desc': 'Questions about a piece, delivery, or a custom project? Our team is here to help.',
+    'contact.name': 'Your Name',
+    'contact.subject': 'Subject',
+    'contact.message': 'Message',
+    'contact.send': 'Send Message',
+    'contact.sent': 'Message Sent',
+
+    // 404 & Admin
     'notFound.title': 'This page has moved on',
     'notFound.desc': "The page you're looking for doesn't exist — but plenty of beautiful furniture does.",
 
@@ -111,6 +171,37 @@ export const dictionaries = {
     'admin.categories': 'Categories',
     'admin.coupons': 'Coupons',
     'admin.storefront': 'View storefront',
+    'admin.stats.revenue': 'Revenue',
+    'admin.stats.orders': 'Orders',
+    'admin.stats.customers': 'Customers',
+    'admin.stats.products': 'Products',
+    'admin.stats.historical': 'All time',
+    'admin.charts.lastDays': 'last {days} days',
+    'admin.charts.ordersByStatus': 'Orders by status',
+    'admin.charts.salesByCategory': 'Sales by category',
+    'admin.charts.topProducts': 'Top products',
+    'admin.charts.ingresos': 'Revenue',
+    'admin.charts.pedidos': 'Orders',
+    'admin.charts.sales': 'Sales',
+    'admin.charts.units': 'Units',
+    'admin.charts.noOrders': 'No orders yet.',
+    'admin.charts.noSales': 'No sales yet.',
+    'admin.charts.totalOrders': '{total} orders in total',
+    'admin.charts.filtering': 'Filtered by «{status}» · {count} of {total}',
+    'admin.charts.categorySub': 'Non-cancelled subtotal · {days}',
+    'admin.charts.topSub': 'By revenue in orders · {days}',
+    'admin.charts.freeShipping': 'Free',
+    'admin.stats.statuses': '{count} statuses',
+    'admin.stats.accounts': 'Registered accounts',
+    'admin.stats.skus': 'Active SKUs',
+    'admin.charts.dashboard': 'Dashboard',
+    'admin.charts.revenueTrend': 'Revenue · last {days} days',
+    'admin.charts.days': '{days} days',
+    'admin.orders.recent': 'Recent orders',
+    'admin.orders.viewAll': 'View all',
+    'admin.stock.alerts': 'Low stock alerts',
+    'admin.stock.none': 'All products well stocked.',
+    'admin.stock.remaining': '{count} remaining',
 
     'support.title': 'Support',
     'support.close': 'Close support',
@@ -139,7 +230,7 @@ export const dictionaries = {
     'compare.clear': 'Clear all',
     'compare.title': 'Compare Products',
     'compare.empty': 'No products to compare yet.',
-    'compare.emptyDesc': 'Add up to {max} productst to compare them side by side.',
+    'compare.emptyDesc': 'Add up to {max} products to compare them side by side.',
     'compare.browse': 'Browse the collection',
     'compare.price': 'Price',
     'compare.rating': 'Rating',
@@ -160,7 +251,9 @@ export const dictionaries = {
     'share.email': 'Email',
     'share.qrSoon': 'QR code coming soon',
   },
+
   es: {
+    // Navigation
     'nav.categories': 'Categorías',
     'nav.search': 'Buscar',
     'nav.account': 'Cuenta',
@@ -169,7 +262,6 @@ export const dictionaries = {
     'nav.signIn': 'Iniciar sesión',
     'nav.signOut': 'Cerrar sesión',
     'nav.theme.toggle': 'Cambiar tema',
-
     'nav.living': 'Sala',
     'nav.bedroom': 'Dormitorio',
     'nav.dining': 'Comedor',
@@ -177,11 +269,15 @@ export const dictionaries = {
     'nav.lighting': 'Iluminación',
     'nav.decor': 'Decoración',
 
+    // Trust bar
     'trust.freeShipping': 'Entrega white-glove gratis desde {amount}',
     'trust.warranty': 'Garantía estructural de 10 años',
     'trust.sustainably': 'Materiales de origen sostenible',
     'trust.comfort': 'Garantía de confort 30 días',
+    'trust.firstClass': 'Entrega de primera clase',
+    'trust.returns30': 'Devoluciones en 30 días',
 
+    // Common
     'common.backHome': 'Volver al inicio',
     'common.viewAll': 'Ver todo',
     'common.loading': 'Cargando…',
@@ -199,6 +295,35 @@ export const dictionaries = {
     'common.free': 'Gratis',
     'common.inStock': 'En stock',
 
+    // Hero Carousel
+    'hero.exploreCollection': 'Explorar la colección',
+    'hero.slide1.eyebrow': 'Nueva temporada · La edición Aurelia',
+    'hero.slide1.title': 'Donde la comodidad se encuentra con el lujo discreto',
+    'hero.slide1.copy': 'Piezas acabadas a mano en buclé, roble y latón: diseñadas para vivir, admirar y heredar.',
+    'hero.slide1.cta': 'Comprar sala de estar',
+    'hero.slide2.eyebrow': 'La colección Residencia',
+    'hero.slide2.title': 'Un hogar, elevado',
+    'hero.slide2.copy': 'Siluetas seleccionadas para cada estancia de tu hogar, desde sofás esculturales hasta iluminación de autor.',
+    'hero.slide2.cta': 'Explorar más vendidos',
+    'hero.slide3.eyebrow': 'Reuniones artesanales',
+    'hero.slide3.title': 'Comer sobre materiales reales',
+    'hero.slide3.copy': 'Mesas de roble macizo y acacia construidas para décadas de cenas, celebraciones y todo lo demás.',
+    'hero.slide3.cta': 'Comprar comedor',
+
+    // Home Sections
+    'home.featured.eyebrow': 'Selección Especial',
+    'home.featured.title': 'Obras Maestras Destacadas',
+    'home.featured.subtitle': 'Elegancia atemporal y artesanía moderna en nuestras piezas más amadas.',
+    'home.categories.eyebrow': 'Explora por Habitación',
+    'home.categories.title': 'Diseño para Cada Espacio',
+    'home.promotions.eyebrow': 'Oferta por Tiempo Limitado',
+    'home.promotions.title': 'Promociones Exclusivas de Temporada',
+    'home.promotions.cta': 'Obtener Oferta',
+    'home.testimonials.eyebrow': 'Palabras amables',
+    'home.testimonials.title': 'Amado por hogares de toda América',
+    'home.testimonials.subtitle': 'Diseñadores, propietarios y profesionales de la hotelería confían en AFC.',
+
+    // Product Detail
     'product.collection': 'Colección',
     'product.addToCart': 'Agregar al carrito',
     'product.buyNow': 'Comprar ahora',
@@ -219,6 +344,20 @@ export const dictionaries = {
     'product.notFoundDesc': 'La pieza que buscas pudo haber sido retirada.',
     'product.browse': 'Explorar la colección',
 
+    // Reviews & Comments
+    'reviews.eyebrow': 'Opiniones',
+    'reviews.title': 'Comentarios y Reseñas',
+    'reviews.quickRating': 'Calificación rápida',
+    'reviews.write': 'Escribe tu comentario u opinión',
+    'reviews.authorLabel': 'Tu nombre',
+    'reviews.authorPlaceholder': 'Ej. María Pérez',
+    'reviews.ratingLabel': 'Puntuación',
+    'reviews.commentLabel': 'Comentario',
+    'reviews.commentPlaceholder': '¿Qué te pareció este producto? Comparte tu experiencia sobre calidad, comodidad o entrega...',
+    'reviews.submit': 'Publicar comentario',
+    'reviews.successToast': '¡Tu comentario y calificación han sido publicados!',
+
+    // Cart & Checkout
     'cart.title': 'Tu carrito',
     'cart.empty': 'Tu carrito está vacío',
     'cart.emptyDesc': 'Agrega algo hermoso para empezar.',
@@ -231,14 +370,15 @@ export const dictionaries = {
     'cart.items': 'artículos',
 
     'checkout.title': 'Finalizar compra',
-    'checkout.contact': 'Contacto',
-    'checkout.shippingAddress': 'Dirección de envío',
-    'checkout.shippingMethod': 'Método de envío',
+    'checkout.contact': 'Información de Contacto',
+    'checkout.shippingAddress': 'Dirección de Envío',
+    'checkout.shippingMethod': 'Método de Envío',
     'checkout.standard': 'Estándar (5–7 días)',
     'checkout.express': 'Express (2–3 días)',
-    'checkout.payment': 'Pago',
-    'checkout.placeOrder': 'Realizar pedido',
+    'checkout.payment': 'Detalles de Pago',
+    'checkout.placeOrder': 'Realizar Pedido',
 
+    // Account & Auth
     'account.title': 'Mi cuenta',
     'account.orders': 'Mis pedidos',
     'account.wishlist': 'Favoritos',
@@ -253,11 +393,24 @@ export const dictionaries = {
     'auth.password': 'Contraseña',
     'auth.forgot': '¿Olvidaste tu contraseña?',
     'auth.newHere': '¿Nuevo en AFC? Crea una cuenta',
+    'auth.rememberMe': 'Recuérdame',
 
+    // Footer & Contact
     'footer.newsletter': 'Únete a nuestro boletín',
     'footer.newsletterDesc': 'Enterate de nuevos productos y ofertas privadas.',
     'footer.subscribe': 'Suscribirme',
+    'footer.rights': 'Todos los derechos reservados.',
 
+    'contact.title': 'Contáctanos',
+    'contact.subtitle': 'Nos encantaría saber de ti',
+    'contact.desc': '¿Preguntas sobre una pieza, la entrega o un proyecto a medida? Nuestro equipo está aquí para ayudarte.',
+    'contact.name': 'Tu nombre',
+    'contact.subject': 'Asunto',
+    'contact.message': 'Mensaje',
+    'contact.send': 'Enviar mensaje',
+    'contact.sent': 'Mensaje enviado',
+
+    // 404 & Admin
     'notFound.title': 'Esta página se ha movido',
     'notFound.desc': 'La página que buscas no existe, pero hay muchos muebles hermosos.',
 
@@ -269,6 +422,37 @@ export const dictionaries = {
     'admin.categories': 'Categorías',
     'admin.coupons': 'Cupones',
     'admin.storefront': 'Ver tienda',
+    'admin.stats.revenue': 'Ingresos',
+    'admin.stats.orders': 'Pedidos',
+    'admin.stats.customers': 'Clientes',
+    'admin.stats.products': 'Productos',
+    'admin.stats.historical': 'Histórico',
+    'admin.charts.lastDays': 'últimos {days} días',
+    'admin.charts.ordersByStatus': 'Pedidos por estado',
+    'admin.charts.salesByCategory': 'Ventas por categoría',
+    'admin.charts.topProducts': 'Productos más vendidos',
+    'admin.charts.ingresos': 'Ingresos',
+    'admin.charts.pedidos': 'Pedidos',
+    'admin.charts.sales': 'Ventas',
+    'admin.charts.units': 'Unidades',
+    'admin.charts.noOrders': 'Aún no hay pedidos.',
+    'admin.charts.noSales': 'Aún no hay ventas.',
+    'admin.charts.totalOrders': '{total} pedidos en total',
+    'admin.charts.filtering': 'Filtrando «{status}» · {count} de {total}',
+    'admin.charts.categorySub': 'Subtotal no cancelado · últimos {days} días',
+    'admin.charts.topSub': 'Por ingresos en pedidos · últimos {days} días',
+    'admin.charts.freeShipping': 'Gratis',
+    'admin.stats.statuses': '{count} estados',
+    'admin.stats.accounts': 'Cuentas registradas',
+    'admin.stats.skus': 'SKUs activos',
+    'admin.charts.dashboard': 'Panel de control',
+    'admin.charts.revenueTrend': 'Ingresos · últimos {days} días',
+    'admin.charts.days': '{days} días',
+    'admin.orders.recent': 'Pedidos recientes',
+    'admin.orders.viewAll': 'Ver todos',
+    'admin.stock.alerts': 'Alertas de stock bajo',
+    'admin.stock.none': 'Todos los productos bien surtidos.',
+    'admin.stock.remaining': '{count} restantes',
 
     'support.title': 'Soporte',
     'support.close': 'Cerrar soporte',

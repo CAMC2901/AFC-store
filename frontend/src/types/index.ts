@@ -5,27 +5,40 @@ export interface Dimensions {
   height?: number;
   depth?: number;
   assembly?: string;
+  /** English variant of `assembly`. */
+  assemblyEn?: string;
   unit?: 'in' | 'cm';
 }
 
 export interface Product {
   id: string;
   name: string;
+  /** English variant of `name`. */
+  nameEn?: string;
   slug: string;
   description: string;
+  /** English variant of `description`. */
+  descriptionEn?: string;
   longDescription?: string;
+  /** English variant of `longDescription`. */
+  longDescriptionEn?: string;
   categoryId: string;
   categorySlug: string;
   categoryName: string;
+  /** English variant of `categoryName`. */
+  categoryNameEn?: string;
   brand: string;
   price: number;
   compareAtPrice?: number;
-  currency: string;
   images: string[];
   sku: string;
   stock: number;
   material?: string;
+  /** English variant of `material`. */
+  materialEn?: string;
   color?: string;
+  /** English variant of `color`. */
+  colorEn?: string;
   dimensions?: Dimensions;
   weight?: number;
   featured: boolean;
@@ -33,6 +46,8 @@ export interface Product {
   rating: number;
   reviewCount: number;
   tags: string[];
+  /** English variant of `tags`. */
+  tagsEn?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -40,8 +55,12 @@ export interface Product {
 export interface Category {
   id: string;
   name: string;
+  /** English variant of `name`. */
+  nameEn?: string;
   slug: string;
   description?: string;
+  /** English variant of `description`. */
+  descriptionEn?: string;
   imageUrl?: string;
   sortOrder: number;
   productCount?: number;
@@ -93,6 +112,8 @@ export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
 export interface OrderItem {
   productId: string;
   name: string;
+  /** English variant of `name`, snapshotted at checkout. */
+  nameEn?: string;
   image: string;
   sku: string;
   unitPrice: number;
@@ -127,6 +148,8 @@ export interface Order {
 export interface CartLine {
   productId: string;
   name: string;
+  /** English variant of `name`. */
+  nameEn?: string;
   slug: string;
   image: string;
   unitPrice: number;
@@ -149,7 +172,11 @@ export interface Testimonial {
   id: string;
   name: string;
   role?: string;
+  /** English variant of `role`. */
+  roleEn?: string;
   content: string;
+  /** English variant of `content`. */
+  contentEn?: string;
   rating: number;
 }
 
@@ -195,4 +222,37 @@ export interface AdminSummary {
   totalProducts: number;
   ordersByStatus: Array<{ status: string; count: number }>;
   recentOrders: Order[];
+}
+
+export interface RevenuePoint {
+  date: string;
+  total: number;
+  orders: number;
+}
+
+export interface CategoryRevenue {
+  category: string;
+  name: string;
+  nameEn?: string;
+  total: number;
+  orders: number;
+}
+
+export interface TopSale {
+  productId: string;
+  name: string;
+  nameEn?: string;
+  image: string;
+  units: number;
+  revenue: number;
+}
+
+export interface AdminAnalytics {
+  summary: AdminSummary;
+  topProducts: Product[];
+  lowStock: Product[];
+  revenueSeries: RevenuePoint[];
+  revenueByCategory: CategoryRevenue[];
+  topByRevenue: TopSale[];
+  topByUnits: TopSale[];
 }

@@ -14,15 +14,20 @@ import { QuantitySelector } from '@/components/ui/QuantitySelector';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useI18n } from '@/i18n';
+import { localizeCartLine } from '@/i18n/localize';
 
 export function CartDrawer() {
   const open = useUiStore((s) => s.cartOpen);
   const close = useUiStore((s) => s.closeCart);
   const { lines, subtotal, update, remove } = useCartStore();
+  const { locale, t } = useI18n();
   const isAuthed = useAuthStore((s) => s.status === 'authenticated');
   const [busy, setBusy] = useState<string | null>(null);
 
   useLockBodyScroll(open);
+
+  const localized = lines.map((l) => localizeCartLine(l, locale));
 
   const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
   const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
@@ -68,7 +73,7 @@ export function CartDrawer() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-line px-6 py-5">
               <h2 className="flex items-center gap-2 font-display text-xl">
-                <IconCart size={22} className="text-gold-dark" /> Tu Carrito
+                <IconCart size={22} className="text-gold-dark" /> {t('cart.title')}
               </h2>
               <button
                 onClick={close}
@@ -85,12 +90,13 @@ export function CartDrawer() {
                 <p className="text-xs text-charcoal">
                   {remaining > 0 ? (
                     <>
-                      Añade <span className="font-semibold text-gold-dark">{formatPrice(remaining)}</span> más
-                      para entrega gratuita de primera clase
+                      {locale === 'en' ? 'Add ' : 'Añade '}
+                      <span className="font-semibold text-gold-dark">{formatPrice(remaining)}</span>
+                      {locale === 'en' ? ' more for free white-glove delivery' : ' más para entrega gratuita de primera clase'}
                     </>
                   ) : (
                     <span className="font-semibold text-emerald-600">
-                      ¡Has desbloqueado el envío gratuito!
+                      {locale === 'en' ? 'You have unlocked free shipping!' : '¡Has desbloqueado el envío gratuito!'}
                     </span>
                   )}
                 </p>
@@ -110,17 +116,17 @@ export function CartDrawer() {
               {lines.length === 0 ? (
                 <EmptyState
                   icon={<IconCart size={26} />}
-                  title="Tu carrito está vacío"
-                  description="Explora nuestra colección y encuentra algo hermoso para tu hogar."
+                  title={t('cart.empty')}
+                  description={t('cart.emptyDesc')}
                   action={
                     <Button href="/products" onClick={close}>
-                      Explorar muebles
+                      {t('cart.startShopping')}
                     </Button>
                   }
                 />
               ) : (
                 <ul className="space-y-5">
-                  {lines.map((line) => (
+                  {localized.map((line) => (
                     <li key={line.productId} className="flex gap-4">
                       <Link
                         href={`/products/${line.slug}`}
@@ -168,11 +174,11 @@ export function CartDrawer() {
             {lines.length > 0 && (
               <div className="space-y-3 border-t border-line px-6 py-5">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-charcoal">Subtotal</span>
+                  <span className="text-charcoal">{t('common.subtotal')}</span>
                   <span className="font-display text-lg font-semibold">{formatPrice(subtotal)}</span>
                 </div>
                 <p className="text-xs text-charcoal/60">
-                  Envío e impuestos calculados al finalizar la compra.
+                  {locale === 'en' ? 'Shipping and taxes calculated at checkout.' : 'Envío e impuestos calculados al finalizar la compra.'}
                 </p>
                 <Button
                   href={isAuthed ? '/checkout' : '/login'}
@@ -180,14 +186,14 @@ export function CartDrawer() {
                   fullWidth
                   size="lg"
                 >
-                  {isAuthed ? 'Finalizar compra' : 'Inicia sesión para pagar'}
+                  {isAuthed ? t('cart.checkout') : t('auth.login')}
                   <IconArrowRight size={16} />
                 </Button>
                 <button
                   onClick={close}
                   className="w-full text-center text-xs font-semibold uppercase tracking-widest text-charcoal transition-colors hover:text-gold-dark"
                 >
-                  Seguir comprando
+                  {locale === 'en' ? 'Keep shopping' : 'Seguir comprando'}
                 </button>
               </div>
             )}

@@ -92,7 +92,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-ink text-ivory hover:bg-gold hover:text-ink hover:shadow-gold;
+    @apply btn bg-ink text-ivory hover:bg-gold hover:text-ink hover:shadow-gold dark:bg-gold dark:text-ink dark:hover:bg-gold-dark dark:hover:text-ink;
   }
 
   .btn-gold {

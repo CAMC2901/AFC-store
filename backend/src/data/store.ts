@@ -4,6 +4,7 @@ import { categoriesSeed } from '../data/categories';
 import { productsSeed } from '../data/products';
 import { usersSeed } from '../data/users';
 import { couponsSeed, testimonialsSeed } from '../data/coupons';
+import { ordersSeed } from '../data/orders';
 import {
   Address,
   Category,
@@ -36,6 +37,8 @@ export interface Store {
   /** Cart keyed by userId -> line items */
   carts: Record<string, Array<{ productId: string; quantity: number }>>;
   refreshTokens: Map<string, string>;
+  /** Coupon usage history per user */
+  couponUsages: Array<{ userId: string; couponId: string; usedAt: string }>;
 }
 
 let store: Store | null = null;
@@ -78,13 +81,14 @@ export async function initStore(): Promise<Store> {
     users,
     categories: [...categoriesSeed],
     products: [...productsSeed],
-    orders: [],
+    orders: [...ordersSeed],
     coupons: [...couponsSeed],
     wishlist: [],
     testimonials: [...testimonialsSeed],
     newsletter: [],
     carts: {},
     refreshTokens: new Map(),
+    couponUsages: [],
   };
 
   return store;

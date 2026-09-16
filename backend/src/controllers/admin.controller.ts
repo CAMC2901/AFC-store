@@ -2,7 +2,9 @@ import { Request, Response } from 'express';
 import { NewsletterService, TestimonialService, ContactService } from '../services/misc.service';
 import { repositories } from '../repositories/container';
 import { success, NotFoundError } from '../utils/error';
+import { clamp, toNumber } from '../utils/helpers';
 import { ProductService } from '../services/product.service';
+import { BRAND } from '../constants';
 
 export const MiscController = {
   subscribe: async (req: Request, res: Response) => {
@@ -22,11 +24,22 @@ export const MiscController = {
   },
 
   config: async (_req: Request, res: Response) => {
-    const [categories, priceRange] = await Promise.all([
+    const [categories, priceRange, adminUser] = await Promise.all([
       repositories.categories.findAll(),
       ProductService.priceRange(),
+      repositories.users.findByEmail('admin@afcfurniture.com'),
     ]);
-    res.json(success({ categories, priceRange }));
+
+    const defaultAddress = adminUser?.addresses?.find((a) => a.isDefault) || adminUser?.addresses?.[0];
+    const storeInfo = {
+      phone: adminUser?.phone || BRAND.phone,
+      email: adminUser?.email || BRAND.email,
+      address: defaultAddress
+        ? `${defaultAddress.line1}${defaultAddress.line2 ? ', ' + defaultAddress.line2 : ''}, ${defaultAddress.city}`
+        : BRAND.address,
+    };
+
+    res.json(success({ categories, priceRange, storeInfo }));
   },
 };
 
@@ -150,13 +163,21 @@ export const AdminController = {
   },
 
   // ---- Analytics ----
-  analytics: async (_req: Request, res: Response) => {
+  analytics: async (req: Request, res: Response) => {
+    const days = clamp(toNumber(req.query.days, 30), 1, 90);
     const { AnalyticsService } = await import('../services/order.service');
-    const summary = await AnalyticsService.summary();
-    const [topProducts, lowStock] = await Promise.all([
-      AnalyticsService.topProducts(5),
-      AnalyticsService.lowStock(),
-    ]);
-    res.json(success({ summary, topProducts, lowStock }));
+    const [summary, topProducts, lowStock, revenueSeries, revenueByCategory, topByRevenue, topByUnits] =
+      await Promise.all([
+        AnalyticsService.summary(),
+        AnalyticsService.topProducts(5),
+        AnalyticsService.lowStock(),
+        AnalyticsService.revenueSeries(days),
+        AnalyticsService.revenueByCategory(days),
+        AnalyticsService.topSellingByRevenue(5, days),
+        AnalyticsService.topSellingByUnits(5, days),
+      ]);
+    res.json(
+      success({ summary, topProducts, lowStock, revenueSeries, revenueByCategory, topByRevenue, topByUnits })
+    );
   },
 };

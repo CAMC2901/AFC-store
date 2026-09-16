@@ -8,11 +8,15 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { RevealGroup, RevealItem } from '@/components/ui/Reveal';
 import { IconLeaf } from '@/components/ui/Icons';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n';
+import { localizeTestimonial } from '@/i18n/localize';
 
 export function Testimonials() {
+  const { locale } = useI18n();
   const { data: testimonials, isLoading } = useQuery({
     queryKey: ['testimonials'],
     queryFn: MiscApi.testimonials,
+    select: (data) => data.map((t) => localizeTestimonial(t, locale)),
   });
 
   return (
@@ -36,8 +40,10 @@ export function Testimonials() {
               <RevealItem key={t.id}>
                 <figure
                   className={cn(
-                    'flex h-full flex-col justify-between rounded-3xl border border-line p-7 transition-shadow hover:shadow-card-hover',
-                    i === 0 && 'bg-ink text-ivory'
+                    'flex h-full flex-col justify-between rounded-3xl border p-7 transition-all hover:shadow-card-hover',
+                    i === 0
+                      ? 'border-gold/40 bg-neutral-900 text-white dark:bg-neutral-950 dark:border-gold/40'
+                      : 'border-line bg-surface text-ink dark:border-neutral-800 dark:bg-neutral-900'
                   )}
                 >
                   <div>
@@ -50,18 +56,18 @@ export function Testimonials() {
                     <span
                       className={cn(
                         'flex h-11 w-11 items-center justify-center rounded-full font-display text-lg',
-                        i === 0 ? 'bg-gold text-ink' : 'bg-mist text-ink'
+                        i === 0 ? 'bg-gold text-neutral-950' : 'bg-mist text-ink dark:bg-neutral-800'
                       )}
                     >
                       {t.name.charAt(0)}
                     </span>
                     <div>
                       <p className="text-sm font-semibold">{t.name}</p>
-                      <p className={cn('text-xs', i === 0 ? 'text-ivory/60' : 'text-charcoal/60')}>
+                      <p className={cn('text-xs', i === 0 ? 'text-white/70' : 'text-charcoal/60 dark:text-neutral-400')}>
                         {t.role}
                       </p>
                     </div>
-                    <IconLeaf size={18} className={cn('ml-auto', i === 0 ? 'text-gold' : 'text-gold')} />
+                    <IconLeaf size={18} className="ml-auto text-gold" />
                   </figcaption>
                 </figure>
               </RevealItem>

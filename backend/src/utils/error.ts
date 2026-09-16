@@ -64,6 +64,14 @@ export const errorHandler = (
     return;
   }
 
+  if (err && typeof err === 'object' && 'type' in err && (err as any).type === 'entity.too.large') {
+    res.status(413).json({
+      success: false,
+      message: 'Payload too large. Las imágenes o archivos son demasiado pesados.',
+    });
+    return;
+  }
+
   if (err instanceof ApiError) {
     res.status(err.statusCode).json({
       success: false,

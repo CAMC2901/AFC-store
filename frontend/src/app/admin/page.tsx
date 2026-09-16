@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AdminApi } from '@/services/account';
 import { Spinner } from '@/components/ui/Spinner';
@@ -8,11 +9,19 @@ import { Badge } from '@/components/ui/Badge';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/constants';
 import { IconBox, IconChart, IconDollar, IconUsers } from '@/components/ui/Icons';
+import { useI18n } from '@/i18n';
+import { localizeProduct } from '@/i18n/localize';
+import { CategoryRevenueChart, RevenueAreaChart, StatusDonut, TopSalesChart } from '@/components/admin/charts';
+
+const RANGES = [7, 30, 90];
 
 export default function AdminDashboard() {
+  const { locale, t } = useI18n();
+  const [days, setDays] = useState(30);
+  const [topMetric, setTopMetric] = useState<'revenue' | 'units'>('revenue');
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'analytics'],
-    queryFn: AdminApi.analytics,
+    queryKey: ['admin', 'analytics', days],
+    queryFn: ({ queryKey }) => AdminApi.analytics(queryKey[2] as number),
   });
 
   if (isLoading || !data) {
@@ -23,19 +32,32 @@ export default function AdminDashboard() {
     );
   }
 
-  const { summary, topProducts, lowStock } = data;
-  const maxStatus = Math.max(1, ...summary.ordersByStatus.map((s) => s.count));
+  const { summary, lowStock, revenueSeries, revenueByCategory, topByRevenue, topByUnits } = data;
+  const low = lowStock.map((p) => localizeProduct(p, locale));
+  const localizedName = (name: string, nameEn?: string) => (locale === 'en' ? nameEn || name : name);
 
   const stats = [
-    { label: 'Ingresos', value: formatPrice(summary.totalRevenue), icon: IconDollar, sub: 'Histórico' },
-    { label: 'Pedidos', value: String(summary.totalOrders), icon: IconChart, sub: `${summary.ordersByStatus.length} estados` },
-    { label: 'Clientes', value: String(summary.totalCustomers), icon: IconUsers, sub: 'Cuentas registradas' },
-    { label: 'Productos', value: String(summary.totalProducts), icon: IconBox, sub: 'SKUs activos' },
+    { label: t('admin.stats.revenue'), value: formatPrice(summary.totalRevenue), icon: IconDollar, sub: t('admin.stats.historical') },
+    { label: t('admin.stats.orders'), value: String(summary.totalOrders), icon: IconChart, sub: t('admin.stats.statuses', { count: summary.ordersByStatus.length }) },
+    { label: t('admin.stats.customers'), value: String(summary.totalCustomers), icon: IconUsers, sub: t('admin.stats.accounts') },
+    { label: t('admin.stats.products'), value: String(summary.totalProducts), icon: IconBox, sub: t('admin.stats.skus') },
   ];
+
+  const categoryData = revenueByCategory.map((c) => ({
+    name: localizedName(c.name, c.nameEn),
+    total: c.total,
+    orders: c.orders,
+  }));
+  const topSource = topMetric === 'revenue' ? topByRevenue : topByUnits;
+  const topSalesData = topSource.map((s) => ({
+    name: localizedName(s.name, s.nameEn),
+    revenue: s.revenue,
+    units: s.units,
+  }));
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-3xl">Panel de control</h1>
+      <h1 className="font-display text-3xl">{t('admin.charts.dashboard')}</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -53,49 +75,82 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Orders by status */}
-        <div className="rounded-2xl border border-line bg-surface p-6">
-          <h2 className="font-display text-xl">Pedidos por estado</h2>
-          <div className="mt-5 space-y-4">
-            {summary.ordersByStatus.length === 0 && <p className="text-sm text-charcoal/60">Aún no hay pedidos.</p>}
-            {summary.ordersByStatus.map((s) => (
-              <div key={s.status}>
-                <div className="mb-1 flex justify-between text-sm">
-                  <span className="capitalize">{ORDER_STATUS_LABELS[s.status] ?? s.status}</span>
-                  <span className="font-semibold">{s.count}</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-mist">
-                  <div
-                    className="h-full rounded-full bg-gold transition-all"
-                    style={{ width: `${(s.count / maxStatus) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+      {/* Revenue trend + status donut */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="rounded-2xl border border-line bg-surface p-6 lg:col-span-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-xl">{t('admin.charts.revenueTrend', { days })}</h2>
+            <div className="flex gap-1 rounded-full bg-mist p-1">
+              {RANGES.map((range) => (
+                <button
+                  key={range}
+                  type="button"
+                  onClick={() => setDays(range)}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                    days === range
+                      ? 'bg-gold text-ivory'
+                      : 'text-charcoal/70 hover:text-ink'
+                  }`}
+                >
+                  {t('admin.charts.days', { days: range })}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4">
+            <RevenueAreaChart data={revenueSeries} />
           </div>
         </div>
 
-        {/* Top products */}
         <div className="rounded-2xl border border-line bg-surface p-6">
-          <h2 className="font-display text-xl">Productos destacados</h2>
-          <ul className="mt-4 divide-y divide-line">
-            {topProducts.map((p, i) => (
-              <li key={p.id} className="flex items-center justify-between gap-3 py-3">
-                <div className="flex items-center gap-3">
-                  <span className="w-6 text-center font-display text-lg text-charcoal/40">{i + 1}</span>
-                  <div>
-                    <p className="text-sm font-medium">{p.name}</p>
-                    <p className="text-xs text-charcoal/60">{p.reviewCount} reseñas</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold">{formatPrice(p.price)}</p>
-                  <Badge tone={p.stock > 0 ? 'green' : 'red'}>{p.stock} en stock</Badge>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <h2 className="font-display text-xl">{t('admin.charts.ordersByStatus')}</h2>
+          <div className="mt-4">
+            <StatusDonut data={summary.ordersByStatus} />
+          </div>
+        </div>
+      </div>
+
+      {/* Category + top sales */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-line bg-surface p-6">
+          <h2 className="font-display text-xl">{t('admin.charts.salesByCategory')}</h2>
+          <p className="mt-1 text-xs text-charcoal/50">{t('admin.charts.categorySub', { days })}</p>
+          <div className="mt-4">
+            <CategoryRevenueChart data={categoryData} />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-line bg-surface p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-xl">{t('admin.charts.topProducts')}</h2>
+              <p className="mt-1 text-xs text-charcoal/50">{t('admin.charts.lastDays', { days })}</p>
+            </div>
+            <div className="flex gap-1 rounded-full bg-mist p-1">
+              {(
+                [
+                  { key: 'revenue', label: t('admin.charts.ingresos') },
+                  { key: 'units', label: t('admin.charts.units') },
+                ] as const
+              ).map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setTopMetric(opt.key)}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                    topMetric === opt.key
+                      ? 'bg-gold text-ivory'
+                      : 'text-charcoal/70 hover:text-ink'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4">
+            <TopSalesChart data={topSalesData} metric={topMetric} />
+          </div>
         </div>
       </div>
 
@@ -103,13 +158,13 @@ export default function AdminDashboard() {
         {/* Recent orders */}
         <div className="rounded-2xl border border-line bg-surface p-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl">Pedidos recientes</h2>
+            <h2 className="font-display text-xl">{t('admin.orders.recent')}</h2>
             <Link href="/admin/orders" className="text-sm font-semibold text-gold-dark hover:text-ink">
-              Ver todos
+              {t('admin.orders.viewAll')}
             </Link>
           </div>
           <ul className="mt-4 divide-y divide-line">
-            {summary.recentOrders.length === 0 && <p className="py-4 text-sm text-charcoal/60">Aún no hay pedidos.</p>}
+            {summary.recentOrders.length === 0 && <p className="py-4 text-sm text-charcoal/60">{t('admin.charts.noOrders')}</p>}
             {summary.recentOrders.map((o) => (
               <li key={o.id} className="flex items-center justify-between py-3 text-sm">
                 <div>
@@ -127,14 +182,14 @@ export default function AdminDashboard() {
 
         {/* Low stock */}
         <div className="rounded-2xl border border-line bg-surface p-6">
-          <h2 className="font-display text-xl">Alertas de stock bajo</h2>
+          <h2 className="font-display text-xl">{t('admin.stock.alerts')}</h2>
           <ul className="mt-4 space-y-3">
-            {lowStock.length === 0 && <p className="text-sm text-charcoal/60">Todos los productos bien surtidos.</p>}
-            {lowStock.slice(0, 6).map((p) => (
+            {lowStock.length === 0 && <p className="text-sm text-charcoal/60">{t('admin.stock.none')}</p>}
+            {low.slice(0, 6).map((p) => (
               <li key={p.id} className="flex items-center justify-between rounded-xl bg-mist px-4 py-3 text-sm">
                 <span className="truncate font-medium">{p.name}</span>
                 <span className={`font-semibold ${p.stock === 0 ? 'text-red-500' : 'text-gold-dark'}`}>
-                  {p.stock} restantes
+                  {t('admin.stock.remaining', { count: p.stock })}
                 </span>
               </li>
             ))}

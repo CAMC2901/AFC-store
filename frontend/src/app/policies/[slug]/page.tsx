@@ -6,7 +6,7 @@ const policies: Record<string, { title: string; sections: Array<{ h: string; p: 
   shipping: {
     title: 'Envíos y entrega',
     sections: [
-      { h: 'Opciones de entrega', p: 'La entrega estándar (5–7 días hábiles) es gratuita en pedidos superiores a $1.499 y cuesta $49 en el resto. La entrega express (2–3 días hábiles) está disponible por $89 en artículos en stock.' },
+      { h: 'Opciones de entrega', p: 'La entrega estándar (5–7 días hábiles) es gratuita en pedidos superiores a $1.500.000 COP y cuesta $25.000 COP en el resto. La entrega express (2–3 días hábiles) está disponible por $40.000 COP en artículos en stock.' },
       { h: 'Servicio white-glove', p: 'Todos los pedidos de mobiliario incluyen entrega white-glove: nuestro equipo lleva los artículos al interior, los ensambla, los coloca en la habitación que elijas y retira todo el empaque.' },
       { h: 'Programación de la entrega', p: 'Recibirás un mensaje o correo para programar la entrega dentro de las 24 horas posteriores a la confirmación del pedido. Los horarios se confirman el día anterior a la entrega.' },
     ],

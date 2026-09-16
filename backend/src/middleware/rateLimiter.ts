@@ -32,3 +32,13 @@ export const newsletterLimiter = rateLimit({
   handler: (_req: Request, _res: Response, next: NextFunction) =>
     next(new ApiError(429, 'Too many subscription attempts. Please try again later.')),
 });
+
+/** Chat limiter (prevents LLM abuse / runaway costs). */
+export const assistantLimiter = rateLimit({
+  windowMs: RATE_LIMIT.assistant.windowMs,
+  max: RATE_LIMIT.assistant.max,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req: Request, _res: Response, next: NextFunction) =>
+    next(new ApiError(429, 'Too many messages. Please wait a moment and try again.')),
+});

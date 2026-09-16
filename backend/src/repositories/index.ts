@@ -84,6 +84,7 @@ export class InMemoryUserRepository implements IUserRepository {
     if (input.lastName !== undefined) user.lastName = input.lastName;
     if (input.phone !== undefined) user.phone = input.phone;
     if (input.email !== undefined) user.email = input.email.toLowerCase();
+    if (input.passwordHash !== undefined) user.passwordHash = input.passwordHash;
     if (input.isActive !== undefined) user.isActive = input.isActive;
     user.updatedAt = new Date().toISOString();
     return user;
@@ -172,14 +173,56 @@ export class InMemoryProductRepository implements IProductRepository {
     let items = store.products.filter((p) => p.isActive);
 
     if (filters.search) {
-      const q = filters.search.toLowerCase();
-      items = items.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.toLowerCase().includes(q)) ||
-          p.brand.toLowerCase().includes(q)
-      );
+      const normalizeSearchString = (str: string): string =>
+        (str || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim();
+
+      const cleanQ = normalizeSearchString(filters.search);
+      const queryWords = cleanQ.split(/\s+/).filter(Boolean);
+
+      const scored: Array<{ product: Product; score: number }> = [];
+
+      for (const p of items) {
+        const normName = normalizeSearchString(p.name);
+        const normNameEn = normalizeSearchString(p.nameEn ?? '');
+        const normCat = normalizeSearchString(p.categoryName ?? '');
+        const normDesc = normalizeSearchString(p.description);
+        const normDescEn = normalizeSearchString(p.descriptionEn ?? '');
+        const normBrand = normalizeSearchString(p.brand);
+        const normMat = normalizeSearchString(p.material ?? '');
+        const normMatEn = normalizeSearchString(p.materialEn ?? '');
+        const normColor = normalizeSearchString(p.color ?? '');
+        const normColorEn = normalizeSearchString(p.colorEn ?? '');
+        const normSku = normalizeSearchString(p.sku);
+        const normTags = (p.tags ?? []).map(normalizeSearchString).join(' ');
+        const normTagsEn = (p.tagsEn ?? []).map(normalizeSearchString).join(' ');
+
+        const searchableText = `${normName} ${normNameEn} ${normCat} ${normDesc} ${normDescEn} ${normBrand} ${normMat} ${normMatEn} ${normColor} ${normColorEn} ${normSku} ${normTags} ${normTagsEn}`;
+
+        const matchesAll = queryWords.every((w) => searchableText.includes(w));
+        const matchesAny = queryWords.some((w) => searchableText.includes(w));
+
+        if (matchesAll || matchesAny) {
+          let score = 0;
+          if (normName.includes(cleanQ) || normNameEn.includes(cleanQ)) score += 100;
+          for (const w of queryWords) {
+            if (normName.includes(w) || normNameEn.includes(w)) score += 20;
+            if (normCat.includes(w)) score += 15;
+            if (normTags.includes(w) || normTagsEn.includes(w)) score += 10;
+            if (normMat.includes(w) || normColor.includes(w)) score += 8;
+            if (normDesc.includes(w)) score += 5;
+          }
+          if (matchesAll) score += 50;
+
+          scored.push({ product: p, score });
+        }
+      }
+
+      scored.sort((a, b) => b.score - a.score);
+      items = scored.map((s) => s.product);
     }
     if (filters.categorySlug) {
       items = items.filter((p) => p.categorySlug === filters.categorySlug);
@@ -189,11 +232,19 @@ export class InMemoryProductRepository implements IProductRepository {
     if (filters.brand) items = items.filter((p) => p.brand.toLowerCase() === filters.brand!.toLowerCase());
     if (filters.material) {
       const m = filters.material.toLowerCase();
-      items = items.filter((p) => (p.material ?? '').toLowerCase().includes(m));
+      items = items.filter(
+        (p) =>
+          (p.material ?? '').toLowerCase().includes(m) ||
+          (p.materialEn ?? '').toLowerCase().includes(m)
+      );
     }
     if (filters.color) {
       const c = filters.color.toLowerCase();
-      items = items.filter((p) => (p.color ?? '').toLowerCase().includes(c));
+      items = items.filter(
+        (p) =>
+          (p.color ?? '').toLowerCase().includes(c) ||
+          (p.colorEn ?? '').toLowerCase().includes(c)
+      );
     }
     if (filters.inStockOnly) items = items.filter((p) => p.stock > 0);
     if (filters.featuredOnly) items = items.filter((p) => p.featured);
@@ -237,7 +288,10 @@ export class InMemoryProductRepository implements IProductRepository {
       (p) =>
         p.id !== product.id &&
         p.isActive &&
-        (p.categoryId === product.categoryId || p.tags.some((t) => product.tags.includes(t)))
+        (p.categoryId === product.categoryId ||
+          p.tags.some((t) => product.tags.includes(t)) ||
+          (product.tagsEn ?? []).some((t) => (p.tags ?? []).includes(t)) ||
+          (p.tagsEn ?? []).some((t) => product.tags.includes(t)))
     );
     const dedup = Array.from(new Map(related.map((p) => [p.id, p])).values());
     return dedup.sort((a, b) => b.rating - a.rating).slice(0, limit);
@@ -249,21 +303,26 @@ export class InMemoryProductRepository implements IProductRepository {
     const product: Product = {
       id: newId('prd'),
       name: input.name ?? 'Untitled',
+      nameEn: input.nameEn,
       slug: input.slug ?? slugify(input.name ?? 'untitled'),
       description: input.description ?? '',
+      descriptionEn: input.descriptionEn,
       longDescription: input.longDescription,
+      longDescriptionEn: input.longDescriptionEn,
       categoryId: input.categoryId ?? 'cat_decor',
       categorySlug: input.categorySlug ?? 'decor',
       categoryName: input.categoryName ?? 'Decor & Accents',
+      categoryNameEn: input.categoryNameEn,
       brand: input.brand ?? 'AFC Studio',
       price: input.price ?? 0,
       compareAtPrice: input.compareAtPrice,
-      currency: input.currency ?? 'USD',
       images: input.images ?? [],
       sku: input.sku ?? newId('SKU').toUpperCase(),
       stock: input.stock ?? 0,
       material: input.material,
+      materialEn: input.materialEn,
       color: input.color,
+      colorEn: input.colorEn,
       dimensions: input.dimensions,
       weight: input.weight,
       featured: input.featured ?? false,
@@ -271,6 +330,7 @@ export class InMemoryProductRepository implements IProductRepository {
       rating: input.rating ?? 0,
       reviewCount: input.reviewCount ?? 0,
       tags: input.tags ?? [],
+      tagsEn: input.tagsEn,
       createdAt: now,
       updatedAt: now,
     };
@@ -296,7 +356,25 @@ export class InMemoryProductRepository implements IProductRepository {
   async adjustStock(id: string, delta: number): Promise<Product | null> {
     const product = await this.findById(id);
     if (!product) return null;
-    product.stock = Math.max(0, product.stock + delta);
+    if (delta < 0 && product.stock + delta < 0) {
+      return null;
+    }
+    product.stock = product.stock + delta;
+    product.updatedAt = new Date().toISOString();
+    return product;
+  }
+
+  async addRating(id: string, rating: number): Promise<Product | null> {
+    const product = await this.findById(id);
+    if (!product) return null;
+    const count = Math.max(0, product.reviewCount || 0);
+    const currentRating = Math.max(0, product.rating || 0);
+    const currentTotal = currentRating * count;
+    const newCount = count + 1;
+    const rawRating = (currentTotal + rating) / newCount;
+    const newRating = Math.min(5, Math.max(1, Math.round(rawRating * 10) / 10));
+    product.rating = newRating;
+    product.reviewCount = newCount;
     product.updatedAt = new Date().toISOString();
     return product;
   }
@@ -307,7 +385,7 @@ export class InMemoryProductRepository implements IProductRepository {
 
   async minMaxPrice(): Promise<{ min: number; max: number }> {
     const prices = getStore().products.filter((p) => p.isActive).map((p) => p.price);
-    if (prices.length === 0) return { min: 0, max: 1000 };
+    if (prices.length === 0) return { min: 0, max: 10000000 };
     return { min: Math.min(...prices), max: Math.max(...prices) };
   }
 
@@ -466,6 +544,10 @@ export class InMemoryOrderRepository implements IOrderRepository {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, limit);
   }
+
+  async all(): Promise<Order[]> {
+    return [...getStore().orders];
+  }
 }
 
 export class InMemoryCouponRepository implements ICouponRepository {
@@ -510,18 +592,34 @@ export class InMemoryCouponRepository implements ICouponRepository {
     return true;
   }
 
-  async incrementUsage(code: string): Promise<void> {
+  async incrementUsage(code: string, userId?: string): Promise<void> {
     const coupon = await this.findByCode(code);
-    if (coupon) coupon.usedCount += 1;
+    if (coupon) {
+      coupon.usedCount += 1;
+      if (userId) {
+        getStore().couponUsages.push({
+          userId,
+          couponId: coupon.id,
+          usedAt: new Date().toISOString(),
+        });
+      }
+    }
   }
 
-  async validate(code: string, subtotal: number): Promise<Coupon | null> {
+  async hasUserUsed(code: string, userId: string): Promise<boolean> {
+    const coupon = await this.findByCode(code);
+    if (!coupon) return false;
+    return getStore().couponUsages.some((u) => u.userId === userId && u.couponId === coupon.id);
+  }
+
+  async validate(code: string, subtotal: number, userId?: string): Promise<Coupon | null> {
     const coupon = await this.findByCode(code);
     if (!coupon) return null;
     if (!coupon.isActive) return null;
     if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return null;
     if (coupon.usageLimit !== undefined && coupon.usedCount >= coupon.usageLimit) return null;
     if (subtotal < coupon.minSubtotal) return null;
+    if (userId && (await this.hasUserUsed(code, userId))) return null;
     return coupon;
   }
 }

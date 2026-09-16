@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { NAV_LINKS, SITE, WHATSAPP } from '@/constants';
+import { useStoreConfig } from '@/hooks/useProducts';
 import { IconFacebook, IconInstagram, IconMail, IconPinterest, IconPin, IconPhone, IconTwitter, IconWhatsApp } from '@/components/ui/Icons';
 
 const policyLinks = [
@@ -21,6 +22,13 @@ const supportLinks = [
 ];
 
 export function Footer() {
+  const { data: config } = useStoreConfig();
+  const info = config?.storeInfo;
+
+  const phoneDisplay = info?.phone || '+57 (300) 123-4567';
+  const emailDisplay = info?.email || 'care@afcfurniture.com';
+  const addressDisplay = info?.address || 'Calle 76 # 54-11, Alto Prado, Barranquilla';
+
   return (
     <footer className="mt-24 bg-ink text-ivory">
       {/* Newsletter band */}
@@ -84,8 +92,8 @@ export function Footer() {
             <IconPhone size={18} className="text-gold" />
             <div>
               <p className="text-xs uppercase tracking-widest text-ivory/40">Llámanos</p>
-              <a href="tel:+15551234567" className="hover:text-gold">
-                +1 (555) 123-4567
+              <a href={`tel:${phoneDisplay.replace(/[^0-9+]/g, '')}`} className="hover:text-gold">
+                {phoneDisplay}
               </a>
             </div>
           </div>
@@ -93,8 +101,8 @@ export function Footer() {
             <IconMail size={18} className="text-gold" />
             <div>
               <p className="text-xs uppercase tracking-widest text-ivory/40">Correo</p>
-              <a href="mailto:care@afcfurniture.com" className="hover:text-gold">
-                care@afcfurniture.com
+              <a href={`mailto:${emailDisplay}`} className="hover:text-gold">
+                {emailDisplay}
               </a>
             </div>
           </div>
@@ -102,7 +110,7 @@ export function Footer() {
             <IconPin size={18} className="text-gold" />
             <div>
               <p className="text-xs uppercase tracking-widest text-ivory/40">Sala de exposición</p>
-              <p>1280 Fifth Avenue, New York, NY</p>
+              <p>{addressDisplay}</p>
             </div>
           </div>
         </div>

@@ -26,11 +26,11 @@ export const addressIdSchema = z.object({
 export const addressCreateSchema = z.object({
   label: z.string().trim().min(1).max(40),
   line1: z.string().trim().min(2).max(120),
-  line2: z.string().trim().max(120).optional().or(z.literal('')),
+  line2: z.string().trim().max(120).optional().or(z.literal('')).or(z.null()),
   city: z.string().trim().min(1).max(80),
   state: z.string().trim().min(1).max(80),
-  postalCode: z.string().trim().min(2).max(20),
-  country: z.string().trim().length(2).toUpperCase().default('US'),
+  postalCode: z.string().trim().min(1).max(20),
+  country: z.string().trim().min(2).max(80).default('Colombia'),
   isDefault: z.boolean().default(false),
 });
 

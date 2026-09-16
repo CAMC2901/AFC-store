@@ -72,7 +72,7 @@ export function FiltersSidebar({
           <input
             type="number"
             max={range?.max}
-            placeholder={`${formatPrice(range?.max ?? 2000)}`}
+            placeholder={`${formatPrice(range?.max ?? 10000000)}`}
             value={filters.maxPrice ?? ''}
             onChange={(e) => set({ maxPrice: e.target.value ? Number(e.target.value) : undefined })}
             className="input"

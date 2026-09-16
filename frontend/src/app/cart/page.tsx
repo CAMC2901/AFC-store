@@ -12,11 +12,17 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PriceTag } from '@/components/ui/PriceTag';
 import { IconArrowRight, IconCart, IconCheck, IconTag, IconTrash, IconTruck } from '@/components/ui/Icons';
 import { formatPrice } from '@/lib/utils';
+import { STANDARD_SHIPPING_FEE, EXPRESS_SHIPPING_FEE } from '@/constants';
 import toast from 'react-hot-toast';
+import { useI18n } from '@/i18n';
+import { localizeCartLine } from '@/i18n/localize';
 
 export default function CartPage() {
   const { lines, subtotal, update, remove } = useCartStore();
+  const { locale } = useI18n();
   const isAuthed = useAuthStore((s) => s.status === 'authenticated');
+
+  const localized = lines.map((l) => localizeCartLine(l, locale));
 
   const [couponCode, setCouponCode] = useState('');
   const [coupon, setCoupon] = useState<{ code: string; discount: number; type: string; value: number } | null>(null);
@@ -26,16 +32,24 @@ export default function CartPage() {
 
   // Recompute shipping totals whenever cart/coupon/shipping changes.
   useEffect(() => {
-    if (!isAuthed || lines.length === 0) {
+    if (lines.length === 0) {
       setTotals(null);
       return;
     }
     setBusy(true);
     CartApi.totals({ couponCode: coupon?.code ?? undefined, shippingMethod })
       .then((t) => setTotals(t))
-      .catch(() => setTotals(null))
+      .catch(() => {
+        // Guest mode fallback calculation
+        const disc = coupon?.discount ?? 0;
+        const sub = Math.max(0, subtotal - disc);
+        const free = sub >= 500000;
+        const ship = free ? 0 : shippingMethod === 'express' ? 35000 : 20000;
+        const tax = Math.round(sub * 0.19 * 100) / 100;
+        setTotals({ shipping: ship, discount: disc, tax, total: sub + ship + tax, freeShippingEligible: free });
+      })
       .finally(() => setBusy(false));
-  }, [isAuthed, lines, coupon, shippingMethod]);
+  }, [isAuthed, lines, coupon, shippingMethod, subtotal]);
 
   const applyCoupon = async () => {
     setBusy(true);
@@ -50,24 +64,6 @@ export default function CartPage() {
       setBusy(false);
     }
   };
-
-  if (!isAuthed) {
-    return (
-      <div className="container-afc py-20">
-        <EmptyState
-          icon={<IconCart size={26} />}
-          title="Inicia sesión para ver tu carrito"
-          description="Tu carrito se guarda en tu cuenta para que continúes donde lo dejaste."
-          action={
-            <div className="flex gap-3">
-              <Button href="/login">Inicia sesión</Button>
-              <Button href="/products" variant="outline">Seguir explorando</Button>
-            </div>
-          }
-        />
-      </div>
-    );
-  }
 
   if (lines.length === 0) {
     return (
@@ -98,7 +94,7 @@ export default function CartPage() {
         {/* Items */}
         <div>
           <ul className="space-y-4">
-            {lines.map((line) => (
+            {localized.map((line) => (
               <li key={line.productId} className="flex gap-5 rounded-2xl border border-line bg-surface p-4">
                 <Link href={`/products/${line.slug}`} className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-mist">
                   <Image src={line.image} alt={line.name} fill sizes="96px" className="object-cover" />
@@ -162,13 +158,13 @@ export default function CartPage() {
               <ShippingOption
                 active={shippingMethod === 'standard'}
                 label="Estándar · 5–7 días"
-                price={0}
+                price={STANDARD_SHIPPING_FEE}
                 onClick={() => setShippingMethod('standard')}
               />
               <ShippingOption
                 active={shippingMethod === 'express'}
                 label="Express · 2–3 días"
-                price={89}
+                price={EXPRESS_SHIPPING_FEE}
                 onClick={() => setShippingMethod('express')}
               />
             </div>

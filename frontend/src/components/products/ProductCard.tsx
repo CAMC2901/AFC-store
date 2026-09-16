@@ -73,7 +73,7 @@ export function ProductCard({
       onMouseLeave={() => setHovered(false)}
       whileHover={{ y: -6 }}
     >
-      <Link href={`/products/${product.slug}`} className="block">
+      <Link href={`/products/${product.slug}`} prefetch={false} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-mist">
           <Image
             src={product.images[0]}
@@ -97,7 +97,7 @@ export function ProductCard({
               </span>
             )}
             {product.featured && (
-              <span className="rounded-full bg-overlay/80 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-ivory backdrop-blur">
+              <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-ink shadow-md dark:bg-amber-400 dark:text-ink">
                 Destacado
               </span>
             )}
@@ -132,7 +132,7 @@ export function ProductCard({
           >
             <button
               onClick={handleQuickAdd}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-overlay/90 py-2.5 text-xs font-semibold uppercase tracking-wider text-ivory backdrop-blur transition-colors hover:bg-gold hover:text-ink"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-ink text-ivory dark:bg-gold dark:text-ink py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur transition-colors hover:bg-gold hover:text-ink dark:hover:bg-gold-dark"
             >
               <IconCart size={15} /> Agregar al carrito
             </button>

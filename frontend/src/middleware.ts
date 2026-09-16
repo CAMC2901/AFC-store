@@ -6,7 +6,9 @@ const ADMIN_ONLY = ['/admin'];
 const decodeToken = (token: string): { sub: string; role: string } | null => {
   try {
     const payload = token.split('.')[1];
-    const json = Buffer.from(payload, 'base64url').toString('utf-8');
+    if (!payload) return null;
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = atob(base64);
     return JSON.parse(json) as { sub: string; role: string };
   } catch {
     return null;

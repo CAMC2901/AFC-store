@@ -4,12 +4,20 @@ import { UnauthorizedError, ForbiddenError } from '../utils/error';
 import { repositories } from '../repositories/container';
 import { Role } from '../types';
 
+const extractToken = (req: Request): string | undefined => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7).trim();
+  }
+  return req.cookies?.afc_access_token as string | undefined;
+};
+
 /**
- * Requires a valid access token (HTTP-only cookie).
+ * Requires a valid access token (Authorization header or HTTP-only cookie).
  * Attaches req.user (sanitized) and req.userId to the request.
  */
 export const requireAuth = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  const token = req.cookies?.afc_access_token as string | undefined;
+  const token = extractToken(req);
   if (!token) {
     return next(new UnauthorizedError());
   }
@@ -39,7 +47,7 @@ export const requireRole = (...roles: Role[]) => {
 
 /** Optional auth — sets req.user if a valid token exists, otherwise continues. */
 export const optionalAuth = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  const token = req.cookies?.afc_access_token as string | undefined;
+  const token = extractToken(req);
   if (!token) return next();
   try {
     const payload = verifyAccessToken(token);

@@ -11,8 +11,11 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from '@/constants';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { IconBox, IconCheck, IconTruck } from '@/components/ui/Icons';
+import { useI18n } from '@/i18n';
+import { localizeOrderItem } from '@/i18n/localize';
 
 export default function OrderDetailPage() {
+  const { locale } = useI18n();
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const isSuccess = searchParams.get('success') === '1';
@@ -108,18 +111,21 @@ export default function OrderDetailPage() {
       <div className="rounded-2xl border border-line bg-surface p-6">
         <h2 className="font-display text-lg">Artículos</h2>
         <ul className="mt-4 divide-y divide-line">
-          {order.items.map((item) => (
-            <li key={item.productId} className="flex items-center gap-4 py-4">
-              <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-lg bg-mist">
-                <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium">{item.name}</p>
-                <p className="text-xs text-charcoal/60">{formatPrice(item.unitPrice)} × {item.quantity}</p>
-              </div>
-              <span className="font-semibold">{formatPrice(item.subtotal)}</span>
-            </li>
-          ))}
+          {order.items.map((raw) => {
+            const item = localizeOrderItem(raw, locale);
+            return (
+              <li key={item.productId} className="flex items-center gap-4 py-4">
+                <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-lg bg-mist">
+                  <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-xs text-charcoal/60">{formatPrice(item.unitPrice)} × {item.quantity}</p>
+                </div>
+                <span className="font-semibold">{formatPrice(item.subtotal)}</span>
+              </li>
+            );
+          })}
         </ul>
       </div>
 

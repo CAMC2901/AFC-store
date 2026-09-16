@@ -20,10 +20,9 @@ interface I18nContextValue {
   toggleLocale: () => void;
   /** Translate a key with optional interpolation params. */
   t: (key: string, params?: Record<string, string | number>) => string;
-  /** Format an amount given in USD for the current locale+currency. */
-  formatMoney: (amountUSD: number) => string;
+  /** Format an amount in COP. */
+  formatMoney: (amountCOP: number) => string;
   formatDate: (iso: string) => string;
-  currency: string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -71,15 +70,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<I18nContextValue>(() => {
     const dict = dictionaries[locale];
-    const currency = locale === 'es' ? 'COP' : 'USD';
     return {
       locale,
       setLocale,
       toggleLocale: () => setLocale(locale === 'en' ? 'es' : 'en'),
       t: (key, params) => interpolate(dict[key as keyof Dictionary] ?? key, params),
-      formatMoney: (amountUSD) => formatCurrency(amountUSD, locale),
+      formatMoney: (amountCOP) => formatCurrency(amountCOP),
       formatDate: (iso) => formatLocalizedDate(iso, locale),
-      currency,
     };
   }, [locale, setLocale]);
 

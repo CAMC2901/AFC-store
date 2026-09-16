@@ -13,13 +13,19 @@ import { Input } from '@/components/ui/Input';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconBox, IconCheck, IconLock, IconTruck } from '@/components/ui/Icons';
 import { cn, formatPrice } from '@/lib/utils';
+import { STANDARD_SHIPPING_FEE, EXPRESS_SHIPPING_FEE } from '@/constants';
 import type { Address, CartTotals } from '@/types';
 import toast from 'react-hot-toast';
+import { useI18n } from '@/i18n';
+import { localizeCartLine } from '@/i18n/localize';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, clear } = useCartStore();
+  const { locale } = useI18n();
   const isAuthed = useAuthStore((s) => s.status === 'authenticated');
+
+  const localized = lines.map((l) => localizeCartLine(l, locale));
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
@@ -189,7 +195,7 @@ export default function CheckoutPage() {
                 icon={IconTruck}
                 title="Estándar"
                 subtitle="5–7 días hábiles"
-                price={totals?.freeShippingEligible ? 0 : 49}
+                price={totals?.freeShippingEligible ? 0 : STANDARD_SHIPPING_FEE}
                 onClick={() => setShippingMethod('standard')}
               />
               <MethodCard
@@ -197,7 +203,7 @@ export default function CheckoutPage() {
                 icon={IconBox}
                 title="Express"
                 subtitle="2–3 días hábiles"
-                price={89}
+                price={EXPRESS_SHIPPING_FEE}
                 onClick={() => setShippingMethod('express')}
               />
             </div>
@@ -222,7 +228,7 @@ export default function CheckoutPage() {
         <aside className="h-fit rounded-2xl border border-line bg-surface p-6 lg:sticky lg:top-24">
           <h2 className="font-display text-xl">Resumen del pedido</h2>
           <ul className="mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
-            {lines.map((line) => (
+            {localized.map((line) => (
               <li key={line.productId} className="flex items-center gap-3">
                 <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-lg bg-mist">
                   <Image src={line.image} alt={line.name} fill sizes="48px" className="object-cover" />

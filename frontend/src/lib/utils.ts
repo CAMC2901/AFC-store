@@ -4,27 +4,15 @@ import { twMerge } from 'tailwind-merge';
 export const cn = (...inputs: ClassValue[]): string => twMerge(clsx(inputs));
 
 /**
- * Default price formatting targets Colombian Pesos (COP) — the store's primary
- * currency. Convert an amount given in USD to COP using the configured rate.
- * Uses the number format from `src/i18n/locale.ts` semantics (es-CO).
+ * Format an amount in Colombian Pesos (COP) — the store's only currency.
+ * Amounts are stored and priced directly in COP; no conversion is applied.
  */
-export const formatPrice = (amountUSD: number, currency = 'COP'): string => {
-  const I18N_RATE = 4200;
-  const value = currency === 'COP' ? amountUSD * I18N_RATE : amountUSD;
-
-  if (currency === 'COP') {
-    const formatted = new Intl.NumberFormat('es-CO', {
-      maximumFractionDigits: 0,
-      minimumFractionDigits: 0,
-    }).format(Math.round(value));
-    return `$${formatted} COP`;
-  }
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
-  }).format(value);
+export const formatPrice = (amountCOP: number): string => {
+  const formatted = new Intl.NumberFormat('es-CO', {
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(Math.round(amountCOP));
+  return `$${formatted} COP`;
 };
 
 export const formatDate = (iso: string): string =>

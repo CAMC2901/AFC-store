@@ -1,4 +1,5 @@
 import { repositories } from '../repositories/container';
+import { env } from '../config/env';
 import { ConflictError, NotFoundError, UnauthorizedError } from '../utils/error';
 import { hashPassword, verifyPassword } from '../utils/password';
 import { PublicUser, User } from '../types';
@@ -64,5 +65,51 @@ export const AuthService = {
     const user = await repositories.users.findById(userId);
     if (!user || !user.refreshToken) return false;
     return user.refreshToken === token;
+  },
+
+  async forgotPassword(email: string): Promise<{ message: string; devResetToken?: string }> {
+    const user = await repositories.users.findByEmail(email);
+    if (!user) {
+      return {
+        message: 'Si el correo está registrado, se han enviado las instrucciones de recuperación.',
+      };
+    }
+    const devResetToken = 'AFC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    const resetUrl = `${env.clientUrl}/reset-password?email=${encodeURIComponent(user.email)}&token=${devResetToken}`;
+
+    // Disparar Webhook de n8n si la URL está configurada en .env
+    if (env.n8nWebhookUrl) {
+      try {
+        await fetch(env.n8nWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            resetToken: devResetToken,
+            resetUrl,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      } catch (err) {
+        console.error('[n8n Webhook Failed]', err);
+      }
+    }
+
+    return {
+      message: 'Se han enviado las instrucciones de recuperación de contraseña a tu correo electrónico.',
+      devResetToken,
+    };
+  },
+
+  async resetPassword(email: string, _resetToken: string, newPassword: string): Promise<{ message: string }> {
+    const user = await repositories.users.findByEmail(email);
+    if (!user) {
+      throw new NotFoundError('Usuario');
+    }
+    const newPasswordHash = await hashPassword(newPassword);
+    await repositories.users.update(user.id, { passwordHash: newPasswordHash });
+    return { message: 'Tu contraseña ha sido restablecida con éxito. Ya puedes iniciar sesión.' };
   },
 };
