@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
-import { env, isProduction } from '../config/env';
+import { env } from '../config/env';
 import { COOKIE_NAMES } from '../constants';
 import { UnauthorizedError } from './error';
 
