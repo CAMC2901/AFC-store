@@ -17,16 +17,13 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    // Proxy API calls to the backend in development (avoids CORS issues).
-    if (process.env.NODE_ENV === 'development') {
-      return [
-        {
-          source: '/api/:path*',
-          destination: `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/:path*`,
-        },
-      ];
-    }
-    return [];
+    // Proxy API calls to the backend in both development and production (avoids CORS issues and hides backend URL).
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/:path*`,
+      },
+    ];
   },
 };
 
