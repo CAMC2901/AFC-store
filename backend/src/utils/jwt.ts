@@ -45,8 +45,8 @@ export const verifyRefreshToken = (token: string): RefreshTokenPayload & JwtPayl
 export const setAccessTokenCookie = (res: Response, token: string): void => {
   res.cookie(COOKIE_NAMES.ACCESS, token, {
     httpOnly: true,
-    secure: isProduction && env.jwt.cookieSecure,
-    sameSite: 'lax',
+    secure: true, // Always true for cross-site
+    sameSite: 'none', // Crucial for cross-site (Vercel -> Render)
     maxAge: 15 * 60 * 1000, // 15 min
     path: '/',
   });
@@ -56,8 +56,8 @@ export const setAccessTokenCookie = (res: Response, token: string): void => {
 export const setRefreshTokenCookie = (res: Response, token: string): void => {
   res.cookie(COOKIE_NAMES.REFRESH, token, {
     httpOnly: true,
-    secure: isProduction && env.jwt.cookieSecure,
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: '/api/v1/auth',
   });
@@ -66,8 +66,8 @@ export const setRefreshTokenCookie = (res: Response, token: string): void => {
 export const clearAuthCookies = (res: Response): void => {
   const options = {
     httpOnly: true,
-    secure: isProduction && env.jwt.cookieSecure,
-    sameSite: 'lax' as const,
+    secure: true,
+    sameSite: 'none' as const,
   };
   res.clearCookie(COOKIE_NAMES.ACCESS, { ...options, path: '/' });
   res.clearCookie(COOKIE_NAMES.REFRESH, { ...options, path: '/api/v1/auth' });

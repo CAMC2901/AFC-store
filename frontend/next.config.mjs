@@ -14,17 +14,6 @@ const nextConfig = {
         hostname: 'images.pexels.com',
         pathname: '/**',
       },
-    ],
-  },
-  async rewrites() {
-    // Proxy API calls to the backend in both development and production (avoids CORS issues and hides backend URL).
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/api/:path*`,
-      },
-    ];
-  },
 };
 
 export default nextConfig;

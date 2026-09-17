@@ -23,8 +23,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const user = await AuthApi.me();
       set({ user, status: 'authenticated' });
-    } catch {
-      set({ user: null, status: 'unauthenticated' });
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        set({ user: null, status: 'unauthenticated' });
+      }
+      // If it's a timeout or network error (like Render sleeping), keep current state
+      // or at least don't force 'unauthenticated' so it doesn't wipe the cart.
     }
   },
 

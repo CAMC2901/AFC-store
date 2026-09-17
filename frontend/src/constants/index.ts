@@ -7,7 +7,7 @@ export const SITE = {
 } as const;
 
 export const API = {
-  baseUrl: '/api/v1',
+  baseUrl: process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1` : 'http://localhost:5000/api/v1',
 } as const;
 
 export const WHATSAPP = {

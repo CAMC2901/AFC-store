@@ -33,7 +33,7 @@ const addressSchema = z.object({
   city: z.string().trim().min(1).max(80),
   state: z.string().trim().min(1).max(80),
   postalCode: z.string().trim().min(2).max(20),
-  country: z.string().trim().length(2).toUpperCase().default('US'),
+  country: z.string().trim().min(2).max(80).toUpperCase().default('US'),
 });
 
 const contactSchema = z.object({
