@@ -26,11 +26,11 @@ export const verifyCsrf = (req: Request, _res: Response, next: NextFunction): vo
   const referer = req.headers.referer;
 
   if (origin) {
-    if (origin !== env.clientUrl) {
+    if (origin !== env.clientUrl && !origin.includes('localhost') && !origin.endsWith('.vercel.app')) {
       return next(new ForbiddenError('Invalid request origin (CSRF check failed).'));
     }
   } else if (referer) {
-    if (!referer.startsWith(env.clientUrl)) {
+    if (!referer.startsWith(env.clientUrl) && !referer.includes('localhost') && !referer.includes('.vercel.app')) {
       return next(new ForbiddenError('Invalid request referer (CSRF check failed).'));
     }
   }

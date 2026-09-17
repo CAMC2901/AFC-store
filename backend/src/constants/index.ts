@@ -11,7 +11,7 @@ export const EXPRESS_SHIPPING_FEE = 40000;
 export const TAX_RATE = 0.08;
 
 export const DEFAULT_PAGE_SIZE = 12;
-export const MAX_PAGE_SIZE = 60;
+export const MAX_PAGE_SIZE = 100;
 
 export const PASSWORD_MIN_LENGTH = 8;
 
